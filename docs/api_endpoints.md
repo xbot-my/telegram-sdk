@@ -29,10 +29,22 @@ $bot->deleteWebhook(true);
 - copyMessage(chatId, fromChatId, messageId, options): Copies a message.
 
 ### Keyboards
-- Inline: pass `reply_markup: { inline_keyboard: [[{ text, callback_data }]] }` or use the builder helpers.
-- Reply: pass `reply_markup: { keyboard: [[{ text }]], resize_keyboard, one_time_keyboard }`.
+- Inline: pass `reply_markup: { inline_keyboard: [[{ text, callback_data }]] }` or use `InlineKeyboardBuilder`.
+- Reply: pass `reply_markup: { keyboard: [[{ text }]], resize_keyboard, one_time_keyboard }` or use `ReplyKeyboardBuilder`.
 - Remove: `reply_markup: { remove_keyboard: true }`.
 - Force reply: `reply_markup: { force_reply: true, input_field_placeholder }`.
+
+Builders
+```
+use XBot\\Telegram\\Keyboard\\InlineKeyboardBuilder as IK;
+use XBot\\Telegram\\Keyboard\\ReplyKeyboardBuilder as RK;
+
+$ik = IK::make()->row(IK::button('OK', ['callback_data' => 'ok']));
+$rk = RK::make()->row(RK::button('Yes'), RK::button('No'))->resize()->oneTime();
+
+$bot->sendMessage(123, 'Inline', ['reply_markup' => $ik->toArray()]);
+$bot->sendMessage(123, 'Reply', ['reply_markup' => $rk->toArray()]);
+```
 
 Fluent Entry (framework-agnostic)
 ```

@@ -54,9 +54,16 @@ class BotMessage
         Set a reply keyboard/inline keyboard payload.
         Example: [[['text' => 'Button', 'callback_data' => 'cb']]]
     */
-    public function keyboard(array $keyboard): self
+    /**
+     * Set inline keyboard rows. Accepts array or InlineKeyboardBuilder.
+     */
+    public function keyboard(array|\XBot\Telegram\Keyboard\InlineKeyboardBuilder $keyboard): self
     {
-        $this->keyboard = $keyboard;
+        if ($keyboard instanceof \XBot\Telegram\Keyboard\InlineKeyboardBuilder) {
+            $this->keyboard = $keyboard->toArray()['inline_keyboard'] ?? [];
+        } else {
+            $this->keyboard = $keyboard;
+        }
         return $this;
     }
 
@@ -73,11 +80,18 @@ class BotMessage
      * Example rows: [[['text' => 'Yes']], [['text' => 'No']]]
      * Options: resize_keyboard, one_time_keyboard, is_persistent, selective, input_field_placeholder
      */
-    public function replyKeyboard(array $keyboard, array $options = []): self
+    /**
+     * Set a ReplyKeyboardMarkup from rows or builder.
+     */
+    public function replyKeyboard(array|\XBot\Telegram\Keyboard\ReplyKeyboardBuilder $keyboard, array $options = []): self
     {
-        $this->replyKeyboard = [
-            'keyboard' => $keyboard,
-        ] + $options;
+        if ($keyboard instanceof \XBot\Telegram\Keyboard\ReplyKeyboardBuilder) {
+            $this->replyKeyboard = $keyboard->toArray();
+        } else {
+            $this->replyKeyboard = [
+                'keyboard' => $keyboard,
+            ] + $options;
+        }
         return $this;
     }
 

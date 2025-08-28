@@ -589,6 +589,7 @@ for ($i = 0; $i < 100; $i++) {
  - 文件与头像: `getFile(fileId)`, `getUserProfilePhotos(userId, options)`
  - 聊天基础：`getChatAdministrators(chatId)`；`setChatTitle/Description`；`setChatPhoto/deleteChatPhoto`；`pinChatMessage/unpinChatMessage/unpinAllChatMessages`；`leaveChat`
  - 键盘：内联 `inline_keyboard`、回复 `keyboard`、`remove_keyboard`、`force_reply`
+   - Builder: `InlineKeyboardBuilder` / `ReplyKeyboardBuilder`
  - 命令：`setMyCommands(commands, options)` / `getMyCommands()` / `deleteMyCommands()`
 
 示例（Bot 入口）：`Bot::to(123)->markdown()->message('*Hello*')`
