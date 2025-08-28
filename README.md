@@ -350,14 +350,7 @@ php artisan telegram:stats --reset
 SDK 提供了完善的异常处理体系：
 
 ```php
-use XBot\Telegram\Exceptions\{
-    TelegramException,
-    ApiException,
-    HttpException,
-    ValidationException,
-    ConfigurationException,
-    InstanceException
-};
+use XBot\Telegram\Exceptions\{ApiException,HttpException,TelegramException,\InstanceException,ValidationException};
 
 try {
     $bot->sendMessage(12345, 'Hello!');
