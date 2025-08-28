@@ -50,6 +50,9 @@ it('sets chat title/description with validation', function () {
     expect($bot->setChatDescription(1, 'desc'))->toBeTrue();
     expect(fn() => $bot->setChatTitle(1, ''))
         ->toThrow(\XBot\Telegram\Exceptions\ValidationException::class);
+    $tooLong = str_repeat('a', 129);
+    expect(fn() => $bot->setChatTitle(1, $tooLong))
+        ->toThrow(\XBot\Telegram\Exceptions\ValidationException::class);
 });
 
 it('pins/unpins messages and leaves chat', function () {
