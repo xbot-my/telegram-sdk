@@ -51,6 +51,25 @@ interface TelegramBotInterface
     ): Message;
 
     /**
+     * 编辑消息标题（caption）
+     */
+    public function editMessageCaption(
+        int|string $chatId,
+        int $messageId,
+        string $caption,
+        array $options = []
+    ): Message;
+
+    /**
+     * 编辑消息的回复标记（仅修改 reply_markup）
+     */
+    public function editMessageReplyMarkup(
+        int|string $chatId,
+        int $messageId,
+        array $replyMarkup
+    ): Message;
+
+    /**
      * 删除消息
      */
     public function deleteMessage(
@@ -97,6 +116,16 @@ interface TelegramBotInterface
      * 获取 Webhook 信息
      */
     public function getWebhookInfo(): array;
+
+    /**
+     * 获取文件信息
+     */
+    public function getFile(string $fileId): array;
+
+    /**
+     * 获取用户头像（profile photos）
+     */
+    public function getUserProfilePhotos(int $userId, array $options = []): array;
 
     /**
      * 发送照片

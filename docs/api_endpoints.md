@@ -22,6 +22,8 @@ $bot->deleteWebhook(true);
   - Common options: `parse_mode` ('HTML'|'Markdown'), `disable_notification`,
     `reply_markup` (inline/reply keyboard), `reply_to_message_id`.
 - editMessageText(chatId, messageId, text, options): Edits a message.
+- editMessageCaption(chatId, messageId, caption, options): Edits media caption.
+- editMessageReplyMarkup(chatId, messageId, replyMarkup): Updates inline/reply keyboard only.
 - deleteMessage(chatId, messageId): Deletes a message.
 - forwardMessage(chatId, fromChatId, messageId, options): Forwards a message.
 - copyMessage(chatId, fromChatId, messageId, options): Copies a message.
@@ -36,6 +38,10 @@ Bot::to(123456)->html()->message('<b>Hello</b>');
 Notes
 - Local file paths automatically go through upload for media endpoints.
 - Validation: chat IDs, message IDs, coordinates, and webhook URLs are validated before request.
+
+## Files & Profiles
+- getFile(fileId): Returns file info including `file_path`.
+- getUserProfilePhotos(userId, options): Returns profile photos (`limit`, `offset`).
 
 ## Chat/Admin Basics
 - getChatAdministrators(chatId): List admins of a chat.

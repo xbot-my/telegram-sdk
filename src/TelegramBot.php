@@ -161,6 +161,52 @@ class TelegramBot implements TelegramBotInterface
     }
 
     /**
+     * 编辑消息标题（caption）
+     */
+    public function editMessageCaption(
+        int|string $chatId,
+        int $messageId,
+        string $caption,
+        array $options = []
+    ): Message {
+        $this->validateChatId($chatId);
+        $this->validateMessageId($messageId);
+        if ($caption === '') {
+            throw ValidationException::required('caption');
+        }
+
+        $parameters = array_merge([
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+            'caption' => $caption,
+        ], $options);
+
+        $response = $this->call('editMessageCaption', $parameters);
+        return $response->toDTO(Message::class);
+    }
+
+    /**
+     * 编辑消息的回复标记（仅 reply_markup）
+     */
+    public function editMessageReplyMarkup(
+        int|string $chatId,
+        int $messageId,
+        array $replyMarkup
+    ): Message {
+        $this->validateChatId($chatId);
+        $this->validateMessageId($messageId);
+
+        $parameters = [
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+            'reply_markup' => $replyMarkup,
+        ];
+
+        $response = $this->call('editMessageReplyMarkup', $parameters);
+        return $response->toDTO(Message::class);
+    }
+
+    /**
      * 删除消息
      */
     public function deleteMessage(
@@ -277,6 +323,34 @@ class TelegramBot implements TelegramBotInterface
     public function getWebhookInfo(): array
     {
         $response = $this->call('getWebhookInfo');
+        return $response->getResult();
+    }
+
+    /**
+     * 获取文件信息
+     */
+    public function getFile(string $fileId): array
+    {
+        if ($fileId === '') {
+            throw ValidationException::required('fileId');
+        }
+
+        $response = $this->call('getFile', ['file_id' => $fileId]);
+        return $response->getResult();
+    }
+
+    /**
+     * 获取用户头像（profile photos）
+     */
+    public function getUserProfilePhotos(int $userId, array $options = []): array
+    {
+        $this->validateUserId($userId);
+
+        $parameters = array_merge([
+            'user_id' => $userId,
+        ], $options);
+
+        $response = $this->call('getUserProfilePhotos', $parameters);
         return $response->getResult();
     }
 
