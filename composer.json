@@ -45,14 +45,21 @@
             "pestphp/pest-plugin": true
         }
     },
-    "extra": {
+  "extra": {
         "laravel": {
             "providers": [
                 "XBot\\Telegram\\Providers\\TelegramServiceProvider"
             ],
             "aliases": {
                 "Telegram": "XBot\\Telegram\\Facades\\Telegram"
-            }
-        }
+  }
+  ,
+  "scripts": {
+    "test": "vendor/bin/pest -q",
+    "phpunit": "vendor/bin/phpunit",
+    "stan": "vendor/bin/phpstan analyse --memory-limit=512M",
+    "lint": "vendor/bin/pint || echo 'Install laravel/pint to enable linting'"
+  }
+}
     }
 }
