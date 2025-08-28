@@ -335,6 +335,21 @@ interface TelegramBotInterface
     ): bool;
 
     /**
+     * 设置 Bot 命令
+     */
+    public function setMyCommands(array $commands, array $options = []): bool;
+
+    /**
+     * 删除 Bot 命令
+     */
+    public function deleteMyCommands(array $options = []): bool;
+
+    /**
+     * 获取 Bot 命令
+     */
+    public function getMyCommands(array $options = []): array;
+
+    /**
      * 执行原始 API 调用
      */
     public function call(string $method, array $parameters = []): TelegramResponse;

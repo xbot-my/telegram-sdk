@@ -28,6 +28,12 @@ $bot->deleteWebhook(true);
 - forwardMessage(chatId, fromChatId, messageId, options): Forwards a message.
 - copyMessage(chatId, fromChatId, messageId, options): Copies a message.
 
+### Keyboards
+- Inline: pass `reply_markup: { inline_keyboard: [[{ text, callback_data }]] }` or use the builder helpers.
+- Reply: pass `reply_markup: { keyboard: [[{ text }]], resize_keyboard, one_time_keyboard }`.
+- Remove: `reply_markup: { remove_keyboard: true }`.
+- Force reply: `reply_markup: { force_reply: true, input_field_placeholder }`.
+
 Fluent Entry (framework-agnostic)
 ```
 use XBot\Telegram\Bot;
@@ -49,3 +55,15 @@ Notes
 - setChatPhoto(chatId, photo) / deleteChatPhoto(chatId): Set/remove photo (local path triggers upload).
 - pinChatMessage(chatId, messageId, disableNotification=false) / unpinChatMessage(chatId, messageId=null) / unpinAllChatMessages(chatId): Pin controls.
 - leaveChat(chatId): Bot leaves the chat.
+## Commands
+- setMyCommands(commands, options)
+- getMyCommands(options)
+- deleteMyCommands(options)
+
+Example
+```
+$bot->setMyCommands([
+  ['command' => 'start', 'description' => 'Start the bot'],
+  ['command' => 'help', 'description' => 'Help menu'],
+], [ 'scope' => ['type' => 'default'], 'language_code' => '' ]);
+```

@@ -14,7 +14,12 @@ class BotMessage
     protected int|string|null $chatId = null;
     protected ?string $parseMode = null; // 'HTML' | 'Markdown'
     protected bool $silent = false;
-    protected ?array $keyboard = null; // ReplyMarkup array
+    protected ?array $keyboard = null; // Inline keyboard (inline_keyboard)
+    protected ?array $replyKeyboard = null; // Reply keyboard (keyboard)
+    protected bool $removeKeyboard = false;
+    protected bool $forceReply = false;
+    protected ?string $inputFieldPlaceholder = null;
+    protected bool $selective = false;
 
     public function __construct(TelegramBot $bot)
     {
@@ -56,6 +61,48 @@ class BotMessage
     }
 
     /**
+     * Alias of keyboard(): set inline keyboard.
+     */
+    public function inlineKeyboard(array $keyboard): self
+    {
+        return $this->keyboard($keyboard);
+    }
+
+    /**
+     * Set a ReplyKeyboardMarkup.
+     * Example rows: [[['text' => 'Yes']], [['text' => 'No']]]
+     * Options: resize_keyboard, one_time_keyboard, is_persistent, selective, input_field_placeholder
+     */
+    public function replyKeyboard(array $keyboard, array $options = []): self
+    {
+        $this->replyKeyboard = [
+            'keyboard' => $keyboard,
+        ] + $options;
+        return $this;
+    }
+
+    /**
+     * Remove the custom keyboard.
+     */
+    public function removeKeyboard(bool $selective = false): self
+    {
+        $this->removeKeyboard = true;
+        $this->selective = $selective;
+        return $this;
+    }
+
+    /**
+     * Force a reply from the user.
+     */
+    public function forceReply(bool $selective = false, ?string $placeholder = null): self
+    {
+        $this->forceReply = true;
+        $this->selective = $selective;
+        $this->inputFieldPlaceholder = $placeholder;
+        return $this;
+    }
+
+    /**
      * Send a text message using collected options.
      */
     public function message(string $text): \XBot\Telegram\Models\DTO\Message
@@ -71,12 +118,28 @@ class BotMessage
         if ($this->silent) {
             $options['disable_notification'] = true;
         }
+        // Inline keyboard
         if ($this->keyboard !== null) {
-            $options['reply_markup'] = [
-                // Auto-detect: if it looks like inline keyboard (callback_data entries), set accordingly
-                // Consumers can pass full reply_markup if they need more control.
-                'inline_keyboard' => $this->keyboard,
-            ];
+            $options['reply_markup'] = ['inline_keyboard' => $this->keyboard];
+        }
+
+        // Reply keyboard
+        if ($this->replyKeyboard !== null) {
+            $options['reply_markup'] = $this->replyKeyboard;
+        }
+
+        // Remove keyboard
+        if ($this->removeKeyboard) {
+            $options['reply_markup'] = ['remove_keyboard' => true, 'selective' => $this->selective];
+        }
+
+        // Force reply
+        if ($this->forceReply) {
+            $rm = ['force_reply' => true, 'selective' => $this->selective];
+            if ($this->inputFieldPlaceholder !== null) {
+                $rm['input_field_placeholder'] = $this->inputFieldPlaceholder;
+            }
+            $options['reply_markup'] = $rm;
         }
 
         return $this->bot->sendMessage($this->chatId, $text, $options);

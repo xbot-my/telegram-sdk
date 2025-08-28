@@ -843,6 +843,51 @@ class TelegramBot implements TelegramBotInterface
     }
 
     /**
+     * 设置 Bot 命令
+     */
+    public function setMyCommands(array $commands, array $options = []): bool
+    {
+        if (empty($commands)) {
+            throw ValidationException::required('commands');
+        }
+
+        foreach ($commands as $command) {
+            if (!isset($command['command'], $command['description'])) {
+                throw ValidationException::invalidType('commands[]', 'array with command and description', $command);
+            }
+            if (!preg_match('/^[a-z0-9_]{1,32}$/', $command['command'])) {
+                throw ValidationException::invalidFormat('command', '^[a-z0-9_]{1,32}$', $command['command']);
+            }
+            if (strlen($command['description']) > 256) {
+                throw ValidationException::invalidLength('description', 0, 256, $command['description']);
+            }
+        }
+
+        $parameters = array_merge(['commands' => $commands], $options);
+        $response = $this->call('setMyCommands', $parameters);
+        return (bool) $response->getResult();
+    }
+
+    /**
+     * 删除 Bot 命令
+     */
+    public function deleteMyCommands(array $options = []): bool
+    {
+        $response = $this->call('deleteMyCommands', $options);
+        return (bool) $response->getResult();
+    }
+
+    /**
+     * 获取 Bot 命令
+     */
+    public function getMyCommands(array $options = []): array
+    {
+        $response = $this->call('getMyCommands', $options);
+        $result = $response->getResult();
+        return is_array($result) ? $result : [];
+    }
+
+    /**
      * 执行原始 API 调用
      */
     public function call(string $method, array $parameters = []): TelegramResponse
