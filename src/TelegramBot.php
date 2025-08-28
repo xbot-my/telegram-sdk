@@ -279,22 +279,7 @@ class TelegramBot implements TelegramBotInterface
         string $photo,
         array $options = []
     ): Message {
-        $this->validateChatId($chatId);
-
-        $parameters = array_merge([
-            'chat_id' => $chatId,
-            'photo' => $photo,
-        ], $options);
-
-        $files = $this->extractFiles(['photo' => $photo]);
-        
-        if (!empty($files)) {
-            $response = $this->httpClient->upload('sendPhoto', $parameters, $files);
-        } else {
-            $response = $this->call('sendPhoto', $parameters);
-        }
-
-        return $response->toDTO(Message::class);
+        return $this->sendMedia('sendPhoto', $chatId, 'photo', $photo, $options);
     }
 
     /**
@@ -305,22 +290,7 @@ class TelegramBot implements TelegramBotInterface
         string $video,
         array $options = []
     ): Message {
-        $this->validateChatId($chatId);
-
-        $parameters = array_merge([
-            'chat_id' => $chatId,
-            'video' => $video,
-        ], $options);
-
-        $files = $this->extractFiles(['video' => $video]);
-        
-        if (!empty($files)) {
-            $response = $this->httpClient->upload('sendVideo', $parameters, $files);
-        } else {
-            $response = $this->call('sendVideo', $parameters);
-        }
-
-        return $response->toDTO(Message::class);
+        return $this->sendMedia('sendVideo', $chatId, 'video', $video, $options);
     }
 
     /**
@@ -331,22 +301,7 @@ class TelegramBot implements TelegramBotInterface
         string $audio,
         array $options = []
     ): Message {
-        $this->validateChatId($chatId);
-
-        $parameters = array_merge([
-            'chat_id' => $chatId,
-            'audio' => $audio,
-        ], $options);
-
-        $files = $this->extractFiles(['audio' => $audio]);
-        
-        if (!empty($files)) {
-            $response = $this->httpClient->upload('sendAudio', $parameters, $files);
-        } else {
-            $response = $this->call('sendAudio', $parameters);
-        }
-
-        return $response->toDTO(Message::class);
+        return $this->sendMedia('sendAudio', $chatId, 'audio', $audio, $options);
     }
 
     /**
@@ -357,22 +312,7 @@ class TelegramBot implements TelegramBotInterface
         string $document,
         array $options = []
     ): Message {
-        $this->validateChatId($chatId);
-
-        $parameters = array_merge([
-            'chat_id' => $chatId,
-            'document' => $document,
-        ], $options);
-
-        $files = $this->extractFiles(['document' => $document]);
-        
-        if (!empty($files)) {
-            $response = $this->httpClient->upload('sendDocument', $parameters, $files);
-        } else {
-            $response = $this->call('sendDocument', $parameters);
-        }
-
-        return $response->toDTO(Message::class);
+        return $this->sendMedia('sendDocument', $chatId, 'document', $document, $options);
     }
 
     /**
@@ -383,22 +323,7 @@ class TelegramBot implements TelegramBotInterface
         string $sticker,
         array $options = []
     ): Message {
-        $this->validateChatId($chatId);
-
-        $parameters = array_merge([
-            'chat_id' => $chatId,
-            'sticker' => $sticker,
-        ], $options);
-
-        $files = $this->extractFiles(['sticker' => $sticker]);
-        
-        if (!empty($files)) {
-            $response = $this->httpClient->upload('sendSticker', $parameters, $files);
-        } else {
-            $response = $this->call('sendSticker', $parameters);
-        }
-
-        return $response->toDTO(Message::class);
+        return $this->sendMedia('sendSticker', $chatId, 'sticker', $sticker, $options);
     }
 
     /**
@@ -409,22 +334,7 @@ class TelegramBot implements TelegramBotInterface
         string $animation,
         array $options = []
     ): Message {
-        $this->validateChatId($chatId);
-
-        $parameters = array_merge([
-            'chat_id' => $chatId,
-            'animation' => $animation,
-        ], $options);
-
-        $files = $this->extractFiles(['animation' => $animation]);
-        
-        if (!empty($files)) {
-            $response = $this->httpClient->upload('sendAnimation', $parameters, $files);
-        } else {
-            $response = $this->call('sendAnimation', $parameters);
-        }
-
-        return $response->toDTO(Message::class);
+        return $this->sendMedia('sendAnimation', $chatId, 'animation', $animation, $options);
     }
 
     /**
@@ -435,22 +345,7 @@ class TelegramBot implements TelegramBotInterface
         string $voice,
         array $options = []
     ): Message {
-        $this->validateChatId($chatId);
-
-        $parameters = array_merge([
-            'chat_id' => $chatId,
-            'voice' => $voice,
-        ], $options);
-
-        $files = $this->extractFiles(['voice' => $voice]);
-        
-        if (!empty($files)) {
-            $response = $this->httpClient->upload('sendVoice', $parameters, $files);
-        } else {
-            $response = $this->call('sendVoice', $parameters);
-        }
-
-        return $response->toDTO(Message::class);
+        return $this->sendMedia('sendVoice', $chatId, 'voice', $voice, $options);
     }
 
     /**
@@ -817,8 +712,11 @@ class TelegramBot implements TelegramBotInterface
             throw ValidationException::required('chatId');
         }
 
-        if (is_string($chatId) && !str_starts_with($chatId, '@')) {
-            throw ValidationException::invalidFormat('chatId', 'valid chat ID or username starting with @', $chatId);
+        if (is_string($chatId)) {
+            // Accept: @username, numeric IDs including negatives (e.g., -1001234567890)
+            if (!str_starts_with($chatId, '@') && !preg_match('/^-?\d+$/', $chatId)) {
+                throw ValidationException::invalidFormat('chatId', 'numeric ID or @username', $chatId);
+            }
         }
     }
 
@@ -882,5 +780,33 @@ class TelegramBot implements TelegramBotInterface
         if ($longitude < -180 || $longitude > 180) {
             throw ValidationException::invalidRange('longitude', -180, 180, $longitude);
         }
+    }
+
+    /**
+     * 统一的媒体发送助手
+     */
+    protected function sendMedia(
+        string $method,
+        int|string $chatId,
+        string $mediaParam,
+        string $mediaValue,
+        array $options = []
+    ): Message {
+        $this->validateChatId($chatId);
+
+        $parameters = array_merge([
+            'chat_id' => $chatId,
+            $mediaParam => $mediaValue,
+        ], $options);
+
+        $files = $this->extractFiles([$mediaParam => $mediaValue]);
+
+        if (!empty($files)) {
+            $response = $this->httpClient->upload($method, $parameters, $files);
+        } else {
+            $response = $this->call($method, $parameters);
+        }
+
+        return $response->toDTO(Message::class);
     }
 }
