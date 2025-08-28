@@ -37,7 +37,7 @@ class TelegramServiceProvider extends ServiceProvider
     {
         $this->publishConfig();
         $this->registerCommands();
-        $this->registerRoutes();
+        $this->registerRoutesV2();
         $this->registerMiddleware();
     }
 
@@ -130,6 +130,23 @@ class TelegramServiceProvider extends ServiceProvider
             // 注册 Telegram 专用中间件
             $router->aliasMiddleware('telegram.webhook', \XBot\Telegram\Http\Middleware\VerifyWebhookSignature::class);
             $router->aliasMiddleware('telegram.rate_limit', \XBot\Telegram\Http\Middleware\TelegramRateLimit::class);
+        }
+    }
+
+    /**
+     * 注册路由（类数组写法，Laravel 10/11 兼容）
+     */
+    protected function registerRoutesV2(): void
+    {
+        if ($this->app->bound('router')) {
+            $router = $this->app['router'];
+
+            $router->group([
+                'prefix' => config('telegram.webhook.route_prefix', 'telegram/webhook'),
+                'middleware' => config('telegram.webhook.middleware', ['api']),
+            ], function ($router) {
+                $router->post('/{botName}', [\XBot\Telegram\Http\Controllers\WebhookController::class, 'handle']);
+            });
         }
     }
 
