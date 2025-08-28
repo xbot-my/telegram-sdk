@@ -575,3 +575,15 @@ for ($i = 0; $i < 100; $i++) {
 ---
 
 **Happy Bot Building! 🤖✨**
+## 🧭 基础接口速查表
+
+- 发送消息: `sendMessage(chatId, text, options)` — 支持 `parse_mode`, `disable_notification`, `reply_markup`
+- 编辑/删除: `editMessageText(chatId, messageId, text, options)`, `deleteMessage(chatId, messageId)`
+- 转发/复制: `forwardMessage(chatId, fromChatId, messageId)`, `copyMessage(chatId, fromChatId, messageId)`
+- 媒体发送: `sendPhoto|Video|Audio|Document|Voice|Animation(chatId, file, options)` — 本地文件自动走 `upload`
+- 位置/联系人/投票: `sendLocation(lat, lon)`, `sendContact(phone, firstName)`, `sendPoll(question, options, settings)`
+- 更新/Webhook: `getUpdates(options)`, `setWebhook(url, options)`, `deleteWebhook(dropPending)`, `getWebhookInfo()`
+- 聊天与成员: `getChat(chatId)`, `getChatMember(chatId, userId)`, `getChatMemberCount(chatId)`
+- 管理: `banChatMember|unbanChatMember|restrictChatMember|promoteChatMember(chatId, userId, options)`
+
+示例（Bot 入口）：`Bot::to(123)->markdown()->message('*Hello*')`
