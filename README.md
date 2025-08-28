@@ -587,3 +587,13 @@ for ($i = 0; $i < 100; $i++) {
 - 管理: `banChatMember|unbanChatMember|restrictChatMember|promoteChatMember(chatId, userId, options)`
 
 示例（Bot 入口）：`Bot::to(123)->markdown()->message('*Hello*')`
+
+## 🧩 Webhook 部署与排错
+- 部署
+  - 路由：`POST /{prefix}/{botName}`，默认前缀 `telegram/webhook`。
+  - 注册：`setWebhook('https://your.app/telegram/webhook/main', ['secret_token' => '...'])`。
+- 常见问题
+  - 非 HTTPS：Telegram 要求 HTTPS，HTTP 会被拒绝。
+  - 403/签名失败：确保 `secret_token` 与服务端验证一致（`telegram.webhook` 中间件）。
+  - 429：降低速率或设置 `max_connections`，并考虑 `deleteWebhook(true)` 清理积压。
+  - 内网不可达：对外需可访问，必要时通过反向代理或隧道（如 Cloudflare Tunnel）。
