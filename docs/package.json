@@ -1,0 +1,54 @@
+{
+  "name": "telegram-sdk-docs",
+  "version": "1.0.0",
+  "description": "Documentation for Telegram Bot PHP SDK",
+  "main": "index.html",
+  "scripts": {
+    "serve": "docsify serve . --port 3000",
+    "dev": "docsify serve . --port 3000 --open",
+    "build": "echo 'Static site, no build needed'",
+    "preview": "docsify serve . --port 4000",
+    "lint": "markdownlint-cli2 '**/*.md' '#node_modules'",
+    "lint:fix": "markdownlint-cli2-fix '**/*.md' '#node_modules'",
+    "check-links": "markdown-link-check **/*.md",
+    "optimize": "npm run optimize:images && npm run optimize:css",
+    "optimize:images": "imagemin 'assets/images/*' --out-dir='assets/images/optimized'",
+    "optimize:css": "cleancss -o assets/css/custom.min.css assets/css/custom.css"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "php",
+    "sdk",
+    "documentation",
+    "docsify"
+  ],
+  "author": "XBot Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xbot-my/telegram-sdk.git",
+    "directory": "docs"
+  },
+  "bugs": {
+    "url": "https://github.com/xbot-my/telegram-sdk/issues"
+  },
+  "homepage": "https://docs.telegram-sdk.xbot.my",
+  "devDependencies": {
+    "docsify-cli": "^4.4.4",
+    "markdownlint-cli2": "^0.10.0",
+    "markdown-link-check": "^3.11.2",
+    "imagemin": "^8.0.1",
+    "imagemin-cli": "^7.0.0",
+    "clean-css-cli": "^5.6.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
