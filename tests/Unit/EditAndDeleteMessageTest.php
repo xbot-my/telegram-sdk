@@ -12,12 +12,12 @@ it('edits message text with common options', function () {
         expect($params['message_id'])->toBe(22);
         expect($params['text'])->toBe('updated');
         expect($params['parse_mode'])->toBe('HTML');
-        expect($params['disable_web_page_preview'])->toBeTrue();
+        expect($params['disable_web_page_preview'])->toBe('true');
         return ['ok' => true, 'result' => ['message_id' => 22, 'date' => time(), 'chat' => ['id' => 111, 'type' => 'private']]];
     });
 
     $bot = new TelegramBot('test', $client);
-    $msg = $bot->editMessageText(111, 22, 'updated', [
+    $msg = $bot->message->editMessageText(111, 22, 'updated', [
         'parse_mode' => 'HTML',
         'disable_web_page_preview' => true,
     ]);
@@ -26,7 +26,7 @@ it('edits message text with common options', function () {
 
 it('validates deleteMessage message id must be positive', function () {
     $bot = new TelegramBot('test', new FakeHttpClient());
-    expect(fn() => $bot->deleteMessage(111, 0))
-        ->toThrow(\XBot\Telegram\Exceptions\ValidationException::class);
+    expect(fn() => $bot->message->deleteMessage(111, 0))
+        ->toThrow(\InvalidArgumentException::class);
 });
 

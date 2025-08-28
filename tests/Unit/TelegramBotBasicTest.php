@@ -15,7 +15,7 @@ it('sends a text message with options', function () {
     });
 
     $bot = new TelegramBot('test', $client);
-    $msg = $bot->sendMessage(12345, 'Hello', ['parse_mode' => 'HTML']);
+    $msg = $bot->message->sendMessage(12345, 'Hello', ['parse_mode' => 'HTML']);
     expect($msg->messageId)->toBe(1);
 });
 
@@ -31,7 +31,7 @@ it('uploads a photo when local path provided', function () {
     });
 
     $bot = new TelegramBot('test', $client);
-    $msg = $bot->sendPhoto(1, $tmp);
+    $msg = $bot->message->sendPhoto(1, $tmp);
     expect($msg->messageId)->toBe(2);
 });
 
@@ -43,7 +43,7 @@ it('gets chat info', function () {
     });
 
     $bot = new TelegramBot('test', $client);
-    $chat = $bot->getChat('@channel');
-    expect($chat['type'])->toBe('channel');
+    $chat = $bot->chat->getChat('@channel');
+    expect($chat->type)->toBe('channel');
 });
 
