@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests;
+namespace XBot\Telegram\Tests;
 
 use Orchestra\Testbench\TestCase as Orchestra;
 use XBot\Telegram\Providers\TelegramServiceProvider;
@@ -46,9 +46,9 @@ abstract class TestCase extends Orchestra
     {
         // 设置测试配置
         $app['config']->set('telegram.default', 'test');
-        
+
         $app['config']->set('telegram.bots.test', [
-            'token' => '123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            'token' => '1234567890:AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPqrstuvw',
             'base_url' => 'https://api.telegram.org/bot',
             'timeout' => 30,
             'retry_attempts' => 3,
@@ -56,7 +56,7 @@ abstract class TestCase extends Orchestra
         ]);
 
         $app['config']->set('telegram.bots.test2', [
-            'token' => '987654321:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+            'token' => '9876543210:ZZYYXXWWVVUUTTSSRRQQPPOONNMMllkkjjhhgg',
             'base_url' => 'https://api.telegram.org/bot',
             'timeout' => 15,
             'retry_attempts' => 2,

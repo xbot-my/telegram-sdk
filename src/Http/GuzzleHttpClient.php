@@ -16,7 +16,7 @@ use GuzzleHttp\Psr7\MultipartStream;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
-use XBot\Telegram\Contracts\HttpClientConfig;
+use XBot\Telegram\Contracts\HttpClientConfigInterface;
 use XBot\Telegram\Contracts\HttpClientInterface;
 use XBot\Telegram\Exceptions\ApiException;
 use XBot\Telegram\Exceptions\HttpException;
@@ -37,7 +37,7 @@ class GuzzleHttpClient implements HttpClientInterface
     /**
      * 客户端配置
      */
-    protected HttpClientConfig $config;
+    protected HttpClientConfigInterface $config;
 
     /**
      * 最后一次响应
@@ -60,7 +60,7 @@ class GuzzleHttpClient implements HttpClientInterface
         'total_time' => 0.0,
     ];
 
-    public function __construct(HttpClientConfig $config)
+    public function __construct(HttpClientConfigInterface $config)
     {
         $this->config = $config;
         $this->config->validate();
@@ -73,9 +73,9 @@ class GuzzleHttpClient implements HttpClientInterface
     protected function initializeClient(): void
     {
         $stack = HandlerStack::create();
-        
+
         // 添加重试中间件
-        if ($this->config->retryAttempts > 0) {
+        if ($this->config->getRetryAttempts() > 0) {
             $stack->push($this->createRetryMiddleware());
         }
 
@@ -83,7 +83,7 @@ class GuzzleHttpClient implements HttpClientInterface
         $stack->push($this->createStatsMiddleware());
 
         // 添加自定义中间件
-        foreach ($this->config->middleware as $middleware) {
+        foreach ($this->config->getMiddleware() as $middleware) {
             if (is_callable($middleware)) {
                 $stack->push($middleware);
             }
@@ -92,30 +92,30 @@ class GuzzleHttpClient implements HttpClientInterface
         $options = [
             'handler' => $stack,
             'base_uri' => $this->config->getApiUrl(),
-            'timeout' => $this->config->timeout,
-            'connect_timeout' => $this->config->connectTimeout,
-            'read_timeout' => $this->config->readTimeout,
-            'verify' => $this->config->verifySSL,
+            'timeout' => $this->config->getTimeout(),
+            'connect_timeout' => $this->config->getConnectTimeout(),
+            'read_timeout' => $this->config->getReadTimeout(),
+            'verify' => $this->config->isVerifySSL(),
             'allow_redirects' => [
-                'max' => $this->config->maxRedirects,
+                'max' => $this->config->getMaxRedirects(),
                 'strict' => true,
                 'referer' => true,
                 'protocols' => ['https', 'http']
             ],
             'headers' => array_merge([
-                'User-Agent' => $this->config->userAgent,
+                'User-Agent' => $this->config->getUserAgent(),
                 'Accept' => 'application/json',
                 'Connection' => 'keep-alive',
-            ], $this->config->headers),
+            ], $this->config->getHeaders()),
         ];
 
         // 配置代理
-        if ($this->config->proxy) {
-            $options['proxy'] = $this->config->proxy;
+        if ($this->config->getProxy()) {
+            $options['proxy'] = $this->config->getProxy();
         }
 
         // 配置调试模式
-        if ($this->config->debug) {
+        if ($this->config->isDebug()) {
             $options['debug'] = true;
         }
 
@@ -154,7 +154,7 @@ class GuzzleHttpClient implements HttpClientInterface
             if (is_array($value)) {
                 $value = json_encode($value);
             }
-            
+
             $multipart[] = [
                 'name' => $name,
                 'contents' => (string) $value,
@@ -185,7 +185,7 @@ class GuzzleHttpClient implements HttpClientInterface
             $this->stats['total_requests']++;
 
             $response = $this->client->request($httpMethod, $apiMethod, $options);
-            
+
             $telegramResponse = $this->createTelegramResponse($response);
             $this->lastResponse = $telegramResponse;
 
@@ -193,7 +193,6 @@ class GuzzleHttpClient implements HttpClientInterface
             $this->stats['total_time'] += microtime(true) - $startTime;
 
             return $telegramResponse;
-
         } catch (ClientException $e) {
             $this->handleClientException($e);
         } catch (ServerException $e) {
@@ -234,11 +233,11 @@ class GuzzleHttpClient implements HttpClientInterface
                 null,
                 null,
                 ['json_error' => json_last_error_msg()],
-                $this->config->botName
+                $this->config->getBotName()
             );
         }
 
-        return new TelegramResponse($data, $statusCode, $headers, $this->config->botName);
+        return new TelegramResponse($data, $statusCode, $headers, $this->config->getBotName());
     }
 
     /**
@@ -247,7 +246,7 @@ class GuzzleHttpClient implements HttpClientInterface
     protected function handleClientException(ClientException $e): void
     {
         $this->stats['failed_requests']++;
-        
+
         $response = $e->getResponse();
         $body = $response ? (string) $response->getBody() : '';
         $data = json_decode($body, true);
@@ -259,7 +258,7 @@ class GuzzleHttpClient implements HttpClientInterface
                 $data['parameters'] ?? [],
                 $e,
                 ['response_body' => $body],
-                $this->config->botName
+                $this->config->getBotName()
             );
         } else {
             $this->lastError = new HttpException(
@@ -272,7 +271,7 @@ class GuzzleHttpClient implements HttpClientInterface
                 $e->getRequest() ? $e->getRequest()->getMethod() : null,
                 $e,
                 [],
-                $this->config->botName
+                $this->config->getBotName()
             );
         }
     }
@@ -283,7 +282,7 @@ class GuzzleHttpClient implements HttpClientInterface
     protected function handleServerException(ServerException $e): void
     {
         $this->stats['failed_requests']++;
-        
+
         $response = $e->getResponse();
         $this->lastError = new HttpException(
             'Server error: ' . $e->getMessage(),
@@ -305,7 +304,7 @@ class GuzzleHttpClient implements HttpClientInterface
     protected function handleConnectException(ConnectException $e): void
     {
         $this->stats['failed_requests']++;
-        
+
         $this->lastError = HttpException::connectionError(
             'Connection failed: ' . $e->getMessage(),
             $e->getRequest() ? (string) $e->getRequest()->getUri() : null,
@@ -320,7 +319,7 @@ class GuzzleHttpClient implements HttpClientInterface
     protected function handleRedirectException(TooManyRedirectsException $e): void
     {
         $this->stats['failed_requests']++;
-        
+
         $this->lastError = new HttpException(
             'Too many redirects: ' . $e->getMessage(),
             0,
@@ -341,7 +340,7 @@ class GuzzleHttpClient implements HttpClientInterface
     protected function handleRequestException(RequestException $e): void
     {
         $this->stats['failed_requests']++;
-        
+
         $this->lastError = new HttpException(
             'Request failed: ' . $e->getMessage(),
             0,
@@ -362,7 +361,7 @@ class GuzzleHttpClient implements HttpClientInterface
     protected function handleGenericException(\Throwable $e, string $httpMethod, string $apiMethod): void
     {
         $this->stats['failed_requests']++;
-        
+
         $this->lastError = new HttpException(
             'Unexpected error: ' . $e->getMessage(),
             0,
@@ -414,7 +413,7 @@ class GuzzleHttpClient implements HttpClientInterface
                     'filename' => basename($file),
                 ];
             }
-            
+
             // URL 或文件 ID
             return [
                 'name' => $name,
@@ -444,7 +443,7 @@ class GuzzleHttpClient implements HttpClientInterface
         return Middleware::retry(
             function (int $retries, Request $request, ?ResponseInterface $response = null, ?\Throwable $exception = null): bool {
                 // 超过重试次数
-                if ($retries >= $this->config->retryAttempts) {
+                if ($retries >= $this->config->getRetryAttempts()) {
                     return false;
                 }
 
@@ -464,7 +463,7 @@ class GuzzleHttpClient implements HttpClientInterface
             },
             function (int $retries): int {
                 // 指数退避算法
-                $delay = $this->config->retryDelay * (2 ** ($retries - 1));
+                $delay = $this->config->getRetryDelay() * (2 ** ($retries - 1));
                 return min($delay, 30000); // 最大 30 秒
             }
         );
@@ -487,7 +486,7 @@ class GuzzleHttpClient implements HttpClientInterface
      */
     public function getToken(): string
     {
-        return $this->config->token;
+        return $this->config->getToken();
     }
 
     /**
@@ -495,7 +494,7 @@ class GuzzleHttpClient implements HttpClientInterface
      */
     public function getBaseUrl(): string
     {
-        return $this->config->baseUrl;
+        return $this->config->getBaseUrl();
     }
 
     /**
@@ -558,11 +557,11 @@ class GuzzleHttpClient implements HttpClientInterface
     public function getStats(): array
     {
         return array_merge($this->stats, [
-            'success_rate' => $this->stats['total_requests'] > 0 
-                ? ($this->stats['successful_requests'] / $this->stats['total_requests']) * 100 
+            'success_rate' => $this->stats['total_requests'] > 0
+                ? ($this->stats['successful_requests'] / $this->stats['total_requests']) * 100
                 : 0,
-            'average_time' => $this->stats['total_requests'] > 0 
-                ? $this->stats['total_time'] / $this->stats['total_requests'] 
+            'average_time' => $this->stats['total_requests'] > 0
+                ? $this->stats['total_time'] / $this->stats['total_requests']
                 : 0,
         ]);
     }
