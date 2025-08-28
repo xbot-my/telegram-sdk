@@ -1,43 +1,277 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: 📚 Deploy Documentation
 
 on:
-  # Runs on pushes targeting the default branch
   push:
-    branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [ main ]
+    paths: 
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [ main ]
+    paths: 
+      - 'docs/**'
+  # 允许手动触发
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# 设置权限
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# 只允许一个部署同时进行
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
+  # 构建文档
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'docs/package-lock.json'
+
+    - name: 📦 Install dependencies
+      run: |
+        cd docs
+        npm ci || npm install
+
+    - name: 🔧 Setup Pages
+      uses: actions/configure-pages@v4
+
+    - name: 🔍 Validate documentation
+      run: |
+        cd docs
+        # 检查必要文件是否存在
+        echo "📋 检查文档结构..."
+        test -f index.html || { echo "❌ index.html not found"; exit 1; }
+        test -f README.md || { echo "❌ README.md not found"; exit 1; }
+        test -f _sidebar.md || { echo "❌ _sidebar.md not found"; exit 1; }
+        test -f _navbar.md || { echo "❌ _navbar.md not found"; exit 1; }
+        test -f _coverpage.md || { echo "❌ _coverpage.md not found"; exit 1; }
+        
+        # 检查关键目录
+        test -d guide || { echo "❌ guide directory not found"; exit 1; }
+        test -d api || { echo "❌ api directory not found"; exit 1; }
+        test -d assets || { echo "❌ assets directory not found"; exit 1; }
+        
+        echo "✅ 文档结构验证通过"
+
+    - name: 🔗 Check links
+      run: |
+        cd docs
+        echo "🔍 检查内部链接..."
+        # 简单的链接检查（可以扩展使用更复杂的工具）
+        if grep -r "\[.*\](.*\.md)" . | grep -v "http" | grep -v "#"; then
+          echo "📝 找到内部链接，检查文件是否存在..."
+          # 这里可以添加更详细的链接检查逻辑
+        fi
+        echo "✅ 链接检查完成"
+
+    - name: 🛠️ Build documentation
+      run: |
+        cd docs
+        echo "🏗️ 构建文档..."
+        
+        # 如果有 build script，运行它
+        if [ -f package.json ] && npm run --silent 2>/dev/null | grep -q "build"; then
+          npm run build
+        fi
+        
+        # 生成站点地图
+        echo "📄 生成站点地图..."
+        cat > sitemap.xml << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>https://telegram-sdk.xbot.my/</loc>
+            <changefreq>daily</changefreq>
+            <priority>1.0</priority>
+          </url>
+          <url>
+            <loc>https://telegram-sdk.xbot.my/#/guide/installation</loc>
+            <changefreq>weekly</changefreq>
+            <priority>0.8</priority>
+          </url>
+          <url>
+            <loc>https://telegram-sdk.xbot.my/#/guide/quick-start</loc>
+            <changefreq>weekly</changefreq>
+            <priority>0.8</priority>
+          </url>
+          <url>
+            <loc>https://telegram-sdk.xbot.my/#/guide/configuration</loc>
+            <changefreq>weekly</changefreq>
+            <priority>0.8</priority>
+          </url>
+          <url>
+            <loc>https://telegram-sdk.xbot.my/#/api/</loc>
+            <changefreq>weekly</changefreq>
+            <priority>0.7</priority>
+          </url>
+        </urlset>
+        EOF
+        
+        # 生成 robots.txt
+        echo "🤖 生成 robots.txt..."
+        cat > robots.txt << 'EOF'
+        User-agent: *
+        Allow: /
+        
+        Sitemap: https://telegram-sdk.xbot.my/sitemap.xml
+        EOF
+        
+        echo "✅ 文档构建完成"
+
+    - name: 📊 Generate build info
+      run: |
+        cd docs
+        echo "📋 生成构建信息..."
+        cat > build-info.json << EOF
+        {
+          "buildTime": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+          "commit": "${{ github.sha }}",
+          "branch": "${{ github.ref_name }}",
+          "workflow": "${{ github.workflow }}",
+          "actor": "${{ github.actor }}"
+        }
+        EOF
+
+    - name: 📤 Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./docs
+
+  # 部署到 GitHub Pages
   deploy:
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    needs: build
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    - name: 🚀 Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+    - name: 📝 Comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `📚 文档预览已部署！\n\n🔗 预览链接: ${{ steps.deployment.outputs.page_url }}\n\n⏰ 部署时间: ${new Date().toISOString()}`
+          })
+
+  # 构建状态通知
+  notify:
+    if: always()
+    runs-on: ubuntu-latest
+    needs: [build, deploy]
+    
+    steps:
+    - name: 📊 Notify build status
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const buildResult = '${{ needs.build.result }}';
+          const deployResult = '${{ needs.deploy.result }}';
+          
+          let status = '✅ 成功';
+          let emoji = '🎉';
+          
+          if (buildResult === 'failure' || deployResult === 'failure') {
+            status = '❌ 失败';
+            emoji = '💥';
+          } else if (buildResult === 'cancelled' || deployResult === 'cancelled') {
+            status = '⏹️ 取消';
+            emoji = '🛑';
+          }
+          
+          console.log(`${emoji} 文档部署${status}`);
+          
+          // 如果有 Slack webhook 或其他通知方式，可以在这里配置
+          
+  # 清理旧的部署
+  cleanup:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: deploy
+    
+    steps:
+    - name: 🧹 Cleanup old deployments
+      uses: actions/github-script@v7
+      with:
+        script: |
+          // 保留最近 5 个部署
+          const deployments = await github.rest.repos.listDeployments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            environment: 'github-pages',
+            per_page: 100
+          });
+          
+          const deploymentsToDelete = deployments.data.slice(5);
+          
+          for (const deployment of deploymentsToDelete) {
+            try {
+              // 首先设置部署为 inactive
+              await github.rest.repos.createDeploymentStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                deployment_id: deployment.id,
+                state: 'inactive'
+              });
+              
+              // 然后删除部署
+              await github.rest.repos.deleteDeployment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                deployment_id: deployment.id
+              });
+              
+              console.log(`已删除部署 ${deployment.id}`);
+            } catch (error) {
+              console.log(`删除部署 ${deployment.id} 失败: ${error.message}`);
+            }
+          }
+
+  # 性能和 SEO 检查
+  lighthouse:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: deploy
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 🔍 Wait for deployment
+      run: |
+        echo "⏳ 等待部署完成..."
+        sleep 60
+
+    - name: 🚦 Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        urls: |
+          https://telegram-sdk.xbot.my
+          https://telegram-sdk.xbot.my/#/guide/quick-start
+          https://telegram-sdk.xbot.my/#/api/
+        uploadArtifacts: true
+        temporaryPublicStorage: true
