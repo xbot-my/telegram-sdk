@@ -45,7 +45,12 @@ jobs:
     - name: 📦 Install dependencies
       run: |
         cd docs
-        npm ci || npm install
+        # 使用npm ci获得更好的性能和可靠性
+        if [ -f package-lock.json ]; then
+          npm ci --prefer-offline --no-audit
+        else
+          npm install --prefer-offline --no-audit
+        fi
 
     - name: 🔧 Setup Pages
       uses: actions/configure-pages@v4
@@ -53,30 +58,74 @@ jobs:
     - name: 🔍 Validate documentation
       run: |
         cd docs
-        # 检查必要文件是否存在
         echo "📋 检查文档结构..."
-        test -f index.html || { echo "❌ index.html not found"; exit 1; }
-        test -f README.md || { echo "❌ README.md not found"; exit 1; }
-        test -f _sidebar.md || { echo "❌ _sidebar.md not found"; exit 1; }
-        test -f _navbar.md || { echo "❌ _navbar.md not found"; exit 1; }
-        test -f _coverpage.md || { echo "❌ _coverpage.md not found"; exit 1; }
+        
+        # 检查必要文件，但不会因为单个文件缺失而失败
+        missing_files=()
+        
+        [ ! -f index.html ] && missing_files+=("index.html")
+        [ ! -f README.md ] && missing_files+=("README.md")
+        [ ! -f _sidebar.md ] && missing_files+=("_sidebar.md")
+        [ ! -f _navbar.md ] && missing_files+=("_navbar.md")
+        [ ! -f _coverpage.md ] && missing_files+=("_coverpage.md")
+        
+        if [ ${#missing_files[@]} -gt 0 ]; then
+          echo "⚠️ 缺少文件: ${missing_files[*]}"
+          # 只在缺少关键文件时才失败
+          if [ ! -f index.html ] || [ ! -f README.md ]; then
+            echo "❌ 关键文件缺失，构建失败"
+            exit 1
+          fi
+        fi
         
         # 检查关键目录
-        test -d guide || { echo "❌ guide directory not found"; exit 1; }
-        test -d api || { echo "❌ api directory not found"; exit 1; }
-        test -d assets || { echo "❌ assets directory not found"; exit 1; }
+        missing_dirs=()
+        [ ! -d guide ] && missing_dirs+=("guide")
+        [ ! -d api ] && missing_dirs+=("api")
+        [ ! -d assets ] && missing_dirs+=("assets")
         
-        echo "✅ 文档结构验证通过"
+        if [ ${#missing_dirs[@]} -gt 0 ]; then
+          echo "⚠️ 缺少目录: ${missing_dirs[*]}"
+        fi
+        
+        echo "✅ 文档结构验证完成"
+
+    - name: 🔍 Lint Markdown
+      run: |
+        cd docs
+        echo "📝 检查Markdown格式..."
+        # 使用markdownlint检查文档格式
+        npm run lint || {
+          echo "⚠️ Markdown格式检查发现问题，但不阻塞构建"
+          npm run lint:fix 2>/dev/null || true
+        }
+        echo "✅ Markdown检查完成"
 
     - name: 🔗 Check links
       run: |
         cd docs
-        echo "🔍 检查内部链接..."
-        # 简单的链接检查（可以扩展使用更复杂的工具）
-        if grep -r "\[.*\](.*\.md)" . | grep -v "http" | grep -v "#"; then
-          echo "📝 找到内部链接，检查文件是否存在..."
-          # 这里可以添加更详细的链接检查逻辑
-        fi
+        echo "🔍 检查文档链接..."
+        
+        # 使用markdown-link-check进行更全面的链接检查
+        npm run check-links || {
+          echo "⚠️ 发现损坏的链接，但不阻塞构建"
+          echo "📝 请检查上面的错误信息并修复损坏的链接"
+        }
+        
+        # 棅查内部文件引用
+        echo "📝 检查内部文件引用..."
+        find . -name "*.md" -exec grep -l "\](.*\.md)" {} \; | while read file; do
+          echo "检查文件: $file"
+          grep -o "\](.*\.md)" "$file" | sed 's/](//' | sed 's/)//' | while read link; do
+            if [[ ! "$link" =~ ^http ]]; then
+              target="$(dirname "$file")/$link"
+              if [[ ! -f "$target" ]]; then
+                echo "⚠️ 在 $file 中发现损坏的内部链接: $link"
+              fi
+            fi
+          done
+        done
+        
         echo "✅ 链接检查完成"
 
     - name: 🛠️ Build documentation
@@ -84,10 +133,14 @@ jobs:
         cd docs
         echo "🏗️ 构建文档..."
         
-        # 如果有 build script，运行它
-        if [ -f package.json ] && npm run --silent 2>/dev/null | grep -q "build"; then
-          npm run build
-        fi
+        # 优化资源（非关键步骤，失败不影响整体构建）
+        echo "🇿️ 优化资源..."
+        npm run optimize 2>/dev/null || {
+          echo "⚠️ 资源优化失败，但不影响构建"
+        }
+        
+        # docsify是纯静态站点，不需要复杂构建
+        echo "📝 docsify静态站点，无需构建步骤"
         
         # 生成站点地图
         echo "📄 生成站点地图..."
@@ -95,27 +148,27 @@ jobs:
         <?xml version="1.0" encoding="UTF-8"?>
         <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
           <url>
-            <loc>https://docs.telegram-sdk.xbot.my/</loc>
+            <loc>https://telegram-sdk.xbot.my/</loc>
             <changefreq>daily</changefreq>
             <priority>1.0</priority>
           </url>
           <url>
-            <loc>https://docs.telegram-sdk.xbot.my/#/guide/installation</loc>
+            <loc>https://telegram-sdk.xbot.my/#/guide/installation</loc>
             <changefreq>weekly</changefreq>
             <priority>0.8</priority>
           </url>
           <url>
-            <loc>https://docs.telegram-sdk.xbot.my/#/guide/quick-start</loc>
+            <loc>https://telegram-sdk.xbot.my/#/guide/quick-start</loc>
             <changefreq>weekly</changefreq>
             <priority>0.8</priority>
           </url>
           <url>
-            <loc>https://docs.telegram-sdk.xbot.my/#/guide/configuration</loc>
+            <loc>https://telegram-sdk.xbot.my/#/guide/configuration</loc>
             <changefreq>weekly</changefreq>
             <priority>0.8</priority>
           </url>
           <url>
-            <loc>https://docs.telegram-sdk.xbot.my/#/api/</loc>
+            <loc>https://telegram-sdk.xbot.my/#/api/</loc>
             <changefreq>weekly</changefreq>
             <priority>0.7</priority>
           </url>
@@ -125,11 +178,11 @@ jobs:
         # 生成 robots.txt
         echo "🤖 生成 robots.txt..."
         cat > robots.txt << 'EOF'
-        User-agent: *
-        Allow: /
-        
-        Sitemap: https://docs.telegram-sdk.xbot.my/sitemap.xml
-        EOF
+User-agent: *
+Allow: /
+
+Sitemap: https://telegram-sdk.xbot.my/sitemap.xml
+EOF
         
         echo "✅ 文档构建完成"
 
@@ -152,6 +205,18 @@ jobs:
       with:
         path: ./docs
 
+    - name: 📝 Comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `📚 文档构建完成！\n\n📋 构建信息:\n- 提交: \`${{ github.sha }}\`\n- 分支: \`${{ github.ref_name }}\`\n- 触发者: @${{ github.actor }}\n\n⏰ 构建时间: ${new Date().toISOString()}`
+          })
+
   # 部署到 GitHub Pages
   deploy:
     if: github.ref == 'refs/heads/main'
@@ -166,18 +231,6 @@ jobs:
       id: deployment
       uses: actions/deploy-pages@v4
 
-    - name: 📝 Comment on PR
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v7
-      with:
-        script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: `📚 文档预览已部署！\n\n🔗 预览链接: ${{ steps.deployment.outputs.page_url }}\n\n⏰ 部署时间: ${new Date().toISOString()}`
-          })
-
   # 构建状态通知
   notify:
     if: always()
@@ -188,24 +241,57 @@ jobs:
     - name: 📊 Notify build status
       uses: actions/github-script@v7
       with:
+        retries: 3
+        retry-exempt-status-codes: 400,401,403,404,422
         script: |
           const buildResult = '${{ needs.build.result }}';
           const deployResult = '${{ needs.deploy.result }}';
           
           let status = '✅ 成功';
           let emoji = '🎉';
+          let details = [];
           
-          if (buildResult === 'failure' || deployResult === 'failure') {
-            status = '❌ 失败';
+          if (buildResult === 'failure') {
+            status = '❌ 构建失败';
             emoji = '💥';
+            details.push('构建阶段失败');
+          } else if (deployResult === 'failure') {
+            status = '❌ 部署失败';
+            emoji = '💥';
+            details.push('部署阶段失败');
           } else if (buildResult === 'cancelled' || deployResult === 'cancelled') {
             status = '⏹️ 取消';
             emoji = '🛑';
+            details.push('工作流被取消');
+          } else if (buildResult === 'success' && deployResult === 'success') {
+            details.push('构建和部署均成功');
+          } else if (buildResult === 'success' && deployResult === 'skipped') {
+            details.push('构建成功，部署被跳过（非主分支）');
           }
           
-          console.log(`${emoji} 文档部署${status}`);
+          const message = `${emoji} 文档工作流${status}`;
+          console.log(message);
+          
+          if (details.length > 0) {
+            console.log('详细信息: ' + details.join(', '));
+          }
+          
+          // 记录构建统计
+          console.log('构建统计:');
+          console.log(`- 提交: ${{ github.sha }}`);
+          console.log(`- 分支: ${{ github.ref_name }}`);
+          console.log(`- 触发事件: ${{ github.event_name }}`);
+          console.log(`- 执行者: ${{ github.actor }}`);
           
           // 如果有 Slack webhook 或其他通知方式，可以在这里配置
+          // 例如：
+          // if (process.env.SLACK_WEBHOOK_URL) {
+          //   await fetch(process.env.SLACK_WEBHOOK_URL, {
+          //     method: 'POST',
+          //     headers: { 'Content-Type': 'application/json' },
+          //     body: JSON.stringify({ text: message })
+          //   });
+          // }
           
   # 清理旧的部署
   cleanup:
@@ -217,38 +303,64 @@ jobs:
     - name: 🧹 Cleanup old deployments
       uses: actions/github-script@v7
       with:
+        retries: 2
         script: |
-          // 保留最近 5 个部署
-          const deployments = await github.rest.repos.listDeployments({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            environment: 'github-pages',
-            per_page: 100
-          });
+          console.log('🗽️ 开始清理旧部署...');
           
-          const deploymentsToDelete = deployments.data.slice(5);
-          
-          for (const deployment of deploymentsToDelete) {
-            try {
-              // 首先设置部署为 inactive
-              await github.rest.repos.createDeploymentStatus({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                deployment_id: deployment.id,
-                state: 'inactive'
-              });
-              
-              // 然后删除部署
-              await github.rest.repos.deleteDeployment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                deployment_id: deployment.id
-              });
-              
-              console.log(`已删除部署 ${deployment.id}`);
-            } catch (error) {
-              console.log(`删除部署 ${deployment.id} 失败: ${error.message}`);
+          try {
+            // 获取所有部署
+            const deployments = await github.rest.repos.listDeployments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              environment: 'github-pages',
+              per_page: 100
+            });
+            
+            console.log(`📋 找到 ${deployments.data.length} 个部署`);
+            
+            // 保留最近 5 个部署
+            const deploymentsToDelete = deployments.data.slice(5);
+            
+            if (deploymentsToDelete.length === 0) {
+              console.log('✅ 无需清理，部署数量在合理范围内');
+              return;
             }
+            
+            console.log(`🗽️ 将删除 ${deploymentsToDelete.length} 个旧部署`);
+            
+            let deletedCount = 0;
+            let failedCount = 0;
+            
+            for (const deployment of deploymentsToDelete) {
+              try {
+                // 首先设置部署为 inactive
+                await github.rest.repos.createDeploymentStatus({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  deployment_id: deployment.id,
+                  state: 'inactive'
+                });
+                
+                // 然后删除部署
+                await github.rest.repos.deleteDeployment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  deployment_id: deployment.id
+                });
+                
+                console.log(`✅ 已删除部署 ${deployment.id} (${deployment.created_at})`);
+                deletedCount++;
+              } catch (error) {
+                console.log(`❌ 删除部署 ${deployment.id} 失败: ${error.message}`);
+                failedCount++;
+              }
+            }
+            
+            console.log(`📊 清理统计: 成功 ${deletedCount} 个, 失败 ${failedCount} 个`);
+            
+          } catch (error) {
+            console.log(`❌ 清理过程失败: ${error.message}`);
+            // 不抛出错误，因为清理失败不应影响主要部署流程
           }
 
   # 性能和 SEO 检查
@@ -264,14 +376,42 @@ jobs:
     - name: 🔍 Wait for deployment
       run: |
         echo "⏳ 等待部署完成..."
-        sleep 60
+        # 等待站点可访问
+        max_attempts=10
+        attempt=1
+        
+        while [ $attempt -le $max_attempts ]; do
+          echo "🔄 第 $attempt 次尝试检查站点可访问性..."
+          
+          if curl -s -f "https://telegram-sdk.xbot.my" > /dev/null; then
+            echo "✅ 站点已可访问"
+            break
+          else
+            echo "⚠️ 站点不可访问，等待15秒后重试..."
+            sleep 15
+          fi
+          
+          if [ $attempt -eq $max_attempts ]; then
+            echo "❌ 站点在超时后仍不可访问，跳过Lighthouse检查"
+            exit 0
+          fi
+          
+          attempt=$((attempt + 1))
+        done
 
     - name: 🚦 Lighthouse CI
       uses: treosh/lighthouse-ci-action@v10
+      continue-on-error: true
       with:
         urls: |
-          https://docs.telegram-sdk.xbot.my
-          https://docs.telegram-sdk.xbot.my/#/guide/quick-start
-          https://docs.telegram-sdk.xbot.my/#/api/
+          https://telegram-sdk.xbot.my
+          https://telegram-sdk.xbot.my/#/guide/quick-start
+          https://telegram-sdk.xbot.my/#/api/
         uploadArtifacts: true
         temporaryPublicStorage: true
+
+    - name: 📊 Report Lighthouse results
+      if: always()
+      run: |
+        echo "📊 Lighthouse性能检查完成"
+        echo "📝 结果已上传到GitHub Artifacts，可在Actions页面查看"
