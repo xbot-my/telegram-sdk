@@ -435,11 +435,18 @@ class BotManager implements BotManagerInterface
     protected function getObjectMemoryUsage(object $obj): int
     {
         $startMemory = memory_get_usage();
-        $tmp         = unserialize(serialize($obj));
-        $endMemory   = memory_get_usage();
-        unset($tmp);
 
-        return $endMemory - $startMemory;
+        try {
+            $tmp       = unserialize(serialize($obj));
+            $endMemory = memory_get_usage();
+            unset($tmp);
+
+            return max(0, $endMemory - $startMemory);
+        } catch (\Throwable $e) {
+            error_log('Failed to serialize object for memory usage: ' . $e->getMessage());
+
+            return max(0, memory_get_usage() - $startMemory);
+        }
     }
 
     /**
