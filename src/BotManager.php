@@ -28,6 +28,14 @@ class BotManager implements BotManagerInterface
     protected array $configs = [];
 
     /**
+     * Token 校验配置
+     */
+    protected array $tokenValidation = [
+        'enabled' => true,
+        'pattern' => '/^\d+:[a-zA-Z0-9_-]{32,}$/',
+    ];
+
+    /**
      * 默认 Bot 名称
      */
     protected string $defaultBotName;
@@ -63,6 +71,12 @@ class BotManager implements BotManagerInterface
 
         // 加载 Bot 配置
         $this->configs = $config['bots'] ?? [];
+
+        // 加载 Token 校验配置
+        $this->tokenValidation = array_merge(
+            $this->tokenValidation,
+            $config['token_validation'] ?? []
+        );
 
         if (empty($this->configs)) {
             throw ConfigurationException::missing('bots configuration');
@@ -101,8 +115,8 @@ class BotManager implements BotManagerInterface
         }
 
         try {
-            // 验证配置
-            $this->validateBotConfig($name, $config);
+            // 验证配置并合并 Token 校验选项
+            $config['token_validation'] = $this->validateBotConfig($name, $config);
 
             // 创建 HTTP 客户端配置
             $httpConfig = HttpClientConfig::fromArray($config, $name);
@@ -331,11 +345,19 @@ class BotManager implements BotManagerInterface
     }
 
     /**
+     * 合并 Token 校验配置
+     */
+    protected function mergeTokenValidation(array $config): array
+    {
+        return array_merge($this->tokenValidation, $config['token_validation'] ?? []);
+    }
+
+    /**
      * 更新 Bot 配置
      */
     public function updateBotConfig(string $name, array $config): void
     {
-        $this->validateBotConfig($name, $config);
+        $config['token_validation'] = $this->validateBotConfig($name, $config);
 
         $this->configs[$name] = $config;
 
@@ -354,14 +376,14 @@ class BotManager implements BotManagerInterface
             throw InstanceException::alreadyExists($name);
         }
 
-        $this->validateBotConfig($name, $config);
-        $this->configs[$name] = $config;
+        $config['token_validation'] = $this->validateBotConfig($name, $config);
+        $this->configs[$name]       = $config;
     }
 
     /**
      * 验证 Bot 配置
      */
-    protected function validateBotConfig(string $name, array $config): void
+    protected function validateBotConfig(string $name, array $config): array
     {
         if (empty($name)) {
             throw ConfigurationException::invalid('name', $name, 'Bot name cannot be empty');
@@ -371,7 +393,9 @@ class BotManager implements BotManagerInterface
             throw ConfigurationException::missingBotToken($name);
         }
 
-        if (! preg_match('/^\d{8,10}:[a-zA-Z0-9_-]{35}$/', $config['token'])) {
+        $tokenValidation = $this->mergeTokenValidation($config);
+
+        if (! empty($tokenValidation['enabled']) && ! preg_match($tokenValidation['pattern'], $config['token'])) {
             throw ConfigurationException::invalidBotToken($config['token'], $name);
         }
 
@@ -387,6 +411,8 @@ class BotManager implements BotManagerInterface
         if (isset($config['retry_attempts']) && (! is_int($config['retry_attempts']) || $config['retry_attempts'] < 0)) {
             throw ConfigurationException::invalid('retry_attempts', $config['retry_attempts'], 'Retry attempts must be a non-negative integer', $name);
         }
+        
+        return $tokenValidation;
     }
 
     /**

@@ -90,6 +90,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Bot Token Validation
+    |--------------------------------------------------------------------------
+    |
+    | 控制 Bot Token 的严格校验。可通过 pattern 覆盖默认正则，或设置 enabled
+    | 为 false 关闭验证。
+    |
+    */
+    'token_validation' => [
+        'enabled' => env('TELEGRAM_VALIDATE_TOKEN', true),
+        'pattern' => env('TELEGRAM_TOKEN_PATTERN', '^\d+:[A-Za-z0-9_-]{32,}$'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Bot Instances Configuration
     |--------------------------------------------------------------------------
     |
@@ -104,6 +118,10 @@ return [
     'bots' => [
         'main' => [
             'token' => env('TELEGRAM_MAIN_BOT_TOKEN'),
+            // 'token_validation' => [ // 可覆盖或关闭严格校验
+            //     'enabled' => env('TELEGRAM_MAIN_VALIDATE_TOKEN', true),
+            //     'pattern' => env('TELEGRAM_MAIN_TOKEN_PATTERN', null),
+            // ],
             'http_template' => env('TELEGRAM_MAIN_HTTP_TEMPLATE', 'standard'),
             'http_overrides' => [
                 'timeout' => (int) env('TELEGRAM_TIMEOUT', null), // 覆盖模板配置
