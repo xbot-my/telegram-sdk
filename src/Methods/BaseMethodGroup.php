@@ -57,18 +57,29 @@ abstract class BaseMethodGroup
     /**
      * 提取文件参数
      */
-    protected function extractFiles(array $parameters): array
+    protected function extractFiles(array &$parameters): array
     {
         $files = [];
-
-        foreach ($parameters as $key => $value) {
-            if (is_string($value) && $this->isFilePath($value)) {
-                $files[$key] = $value;
-                unset($parameters[$key]);
-            }
-        }
+        $this->walkFiles($parameters, $files);
 
         return $files;
+    }
+
+    /**
+     * 递归遍历参数并提取文件
+     */
+    private function walkFiles(array &$parameters, array &$files, string $prefix = ''): void
+    {
+        foreach ($parameters as $key => &$value) {
+            $currentKey = $prefix === '' ? (string) $key : $prefix . '_' . $key;
+
+            if (is_array($value)) {
+                $this->walkFiles($value, $files, $currentKey);
+            } elseif ((is_string($value) || is_resource($value)) && $this->isFilePath((string) $value)) {
+                $files[$currentKey] = $value;
+                $value = "attach://{$currentKey}";
+            }
+        }
     }
 
     /**
