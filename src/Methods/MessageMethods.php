@@ -88,13 +88,14 @@ class MessageMethods extends BaseMethodGroup
         $this->validateChatId($chatId);
         $this->validateMessageId($messageId);
 
-        $parameters = $this->prepareParameters(array_merge([
+        $parameters = array_merge([
             'chat_id' => $chatId,
             'message_id' => $messageId,
             'media' => $media,
-        ], $options));
+        ], $options);
 
         $files = $this->extractFiles($parameters);
+        $parameters = $this->prepareParameters($parameters);
         
         if (!empty($files)) {
             $response = $this->upload('editMessageMedia', $parameters, $files);
@@ -308,12 +309,13 @@ class MessageMethods extends BaseMethodGroup
     ): Message {
         $this->validateChatId($chatId);
 
-        $parameters = $this->prepareParameters(array_merge([
+        $parameters = array_merge([
             'chat_id' => $chatId,
             'photo' => $photo,
-        ], $options));
+        ], $options);
 
-        $files = $this->extractFiles(['photo' => $photo]);
+        $files = $this->extractFiles($parameters);
+        $parameters = $this->prepareParameters($parameters);
         
         if (!empty($files)) {
             $response = $this->upload('sendPhoto', $parameters, $files);
@@ -334,12 +336,13 @@ class MessageMethods extends BaseMethodGroup
     ): Message {
         $this->validateChatId($chatId);
 
-        $parameters = $this->prepareParameters(array_merge([
+        $parameters = array_merge([
             'chat_id' => $chatId,
             'audio' => $audio,
-        ], $options));
+        ], $options);
 
-        $files = $this->extractFiles(['audio' => $audio]);
+        $files = $this->extractFiles($parameters);
+        $parameters = $this->prepareParameters($parameters);
         
         if (!empty($files)) {
             $response = $this->upload('sendAudio', $parameters, $files);
@@ -360,12 +363,13 @@ class MessageMethods extends BaseMethodGroup
     ): Message {
         $this->validateChatId($chatId);
 
-        $parameters = $this->prepareParameters(array_merge([
+        $parameters = array_merge([
             'chat_id' => $chatId,
             'document' => $document,
-        ], $options));
+        ], $options);
 
-        $files = $this->extractFiles(['document' => $document]);
+        $files = $this->extractFiles($parameters);
+        $parameters = $this->prepareParameters($parameters);
         
         if (!empty($files)) {
             $response = $this->upload('sendDocument', $parameters, $files);
@@ -386,12 +390,13 @@ class MessageMethods extends BaseMethodGroup
     ): Message {
         $this->validateChatId($chatId);
 
-        $parameters = $this->prepareParameters(array_merge([
+        $parameters = array_merge([
             'chat_id' => $chatId,
             'video' => $video,
-        ], $options));
+        ], $options);
 
-        $files = $this->extractFiles(['video' => $video]);
+        $files = $this->extractFiles($parameters);
+        $parameters = $this->prepareParameters($parameters);
         
         if (!empty($files)) {
             $response = $this->upload('sendVideo', $parameters, $files);
@@ -412,12 +417,13 @@ class MessageMethods extends BaseMethodGroup
     ): Message {
         $this->validateChatId($chatId);
 
-        $parameters = $this->prepareParameters(array_merge([
+        $parameters = array_merge([
             'chat_id' => $chatId,
             'animation' => $animation,
-        ], $options));
+        ], $options);
 
-        $files = $this->extractFiles(['animation' => $animation]);
+        $files = $this->extractFiles($parameters);
+        $parameters = $this->prepareParameters($parameters);
         
         if (!empty($files)) {
             $response = $this->upload('sendAnimation', $parameters, $files);
@@ -438,12 +444,13 @@ class MessageMethods extends BaseMethodGroup
     ): Message {
         $this->validateChatId($chatId);
 
-        $parameters = $this->prepareParameters(array_merge([
+        $parameters = array_merge([
             'chat_id' => $chatId,
             'voice' => $voice,
-        ], $options));
+        ], $options);
 
-        $files = $this->extractFiles(['voice' => $voice]);
+        $files = $this->extractFiles($parameters);
+        $parameters = $this->prepareParameters($parameters);
         
         if (!empty($files)) {
             $response = $this->upload('sendVoice', $parameters, $files);
@@ -464,12 +471,13 @@ class MessageMethods extends BaseMethodGroup
     ): Message {
         $this->validateChatId($chatId);
 
-        $parameters = $this->prepareParameters(array_merge([
+        $parameters = array_merge([
             'chat_id' => $chatId,
             'video_note' => $videoNote,
-        ], $options));
+        ], $options);
 
-        $files = $this->extractFiles(['video_note' => $videoNote]);
+        $files = $this->extractFiles($parameters);
+        $parameters = $this->prepareParameters($parameters);
         
         if (!empty($files)) {
             $response = $this->upload('sendVideoNote', $parameters, $files);
@@ -498,23 +506,13 @@ class MessageMethods extends BaseMethodGroup
             throw new \InvalidArgumentException('Media array cannot contain more than 10 items');
         }
 
-        $parameters = $this->prepareParameters(array_merge([
+        $parameters = array_merge([
             'chat_id' => $chatId,
             'media' => $media,
-        ], $options));
+        ], $options);
 
-        // 检查是否有文件需要上传
-        $files = [];
-        foreach ($media as $index => $mediaItem) {
-            if (isset($mediaItem['media']) && $this->isFilePath($mediaItem['media'])) {
-                $fileKey = "media_{$index}";
-                $files[$fileKey] = $mediaItem['media'];
-                $media[$index]['media'] = "attach://{$fileKey}";
-            }
-        }
-
-        // 重新设置媒体参数
-        $parameters['media'] = json_encode($media);
+        $files = $this->extractFiles($parameters);
+        $parameters = $this->prepareParameters($parameters);
 
         if (!empty($files)) {
             $response = $this->upload('sendMediaGroup', $parameters, $files);

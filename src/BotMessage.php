@@ -156,6 +156,6 @@ class BotMessage
             $options['reply_markup'] = $rm;
         }
 
-        return $this->bot->sendMessage($this->chatId, $text, $options);
+        return $this->bot->message->sendMessage($this->chatId, $text, $options);
     }
 }

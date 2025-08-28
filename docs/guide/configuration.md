@@ -32,6 +32,10 @@ Bot::init([
 ]);
 ```
 
+> 默认会使用 `^\d+:[A-Za-z0-9_-]{32,}$` 正则严格校验 Bot Token。
+> 可通过 `token_validation.pattern` 覆盖此规则，或设置
+> `token_validation.enabled` 为 `false` 关闭校验。
+
 ## 🏗️ 基础配置
 
 ### 1. HTTP 客户端配置
@@ -547,7 +551,7 @@ function validateConfig(array $config): array
         $errors[] = 'Bot token 不能为空';
     }
     
-    if (!preg_match('/^\d+:[A-Za-z0-9_-]+$/', $config['token'] ?? '')) {
+    if (!preg_match('/^\d+:[A-Za-z0-9_-]{32,}$/', $config['token'] ?? '')) {
         $errors[] = 'Bot token 格式无效';
     }
     
