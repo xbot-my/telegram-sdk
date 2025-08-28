@@ -305,7 +305,7 @@ EOF
       with:
         retries: 2
         script: |
-          console.log('🗽️ 开始清理旧部署...');
+          console.log('🧹 开始清理旧部署...');
           
           try {
             // 获取所有部署
@@ -326,7 +326,7 @@ EOF
               return;
             }
             
-            console.log(`🗽️ 将删除 ${deploymentsToDelete.length} 个旧部署`);
+            console.log(`🗑️ 将删除 ${deploymentsToDelete.length} 个旧部署`);
             
             let deletedCount = 0;
             let failedCount = 0;
