@@ -74,7 +74,39 @@ jobs:
         cd docs
         echo "🏗️ docsify 静态站点，无需额外构建"
         echo "📄 生成 sitemap.xml ..."
-        # same as before...
+        cat > sitemap.xml << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>https://telegram-sdk.xbot.my/</loc>
+            <changefreq>daily</changefreq>
+            <priority>1.0</priority>
+          </url>
+          <url>
+            <loc>https://telegram-sdk.xbot.my/#/guide/installation</loc>
+            <changefreq>weekly</changefreq>
+            <priority>0.8</priority>
+          </url>
+          <url>
+            <loc>https://telegram-sdk.xbot.my/#/guide/quick-start</loc>
+            <changefreq>weekly</changefreq>
+            <priority>0.8</priority>
+          </url>
+          <url>
+            <loc>https://telegram-sdk.xbot.my/#/guide/configuration</loc>
+            <changefreq>weekly</changefreq>
+            <priority>0.8</priority>
+          </url>
+          <url>
+            <loc>https://telegram-sdk.xbot.my/#/api/</loc>
+            <changefreq>weekly</changefreq>
+            <priority>0.7</priority>
+          </url>
+        </urlset>
+        EOF
+        echo "🤖 生成 robots.txt..."
+        echo "User-agent: *\nAllow: /" > robots.txt
+        echo "✅ 文档构建完成"
 
     - name: 📊 Generate build info
       run: |
