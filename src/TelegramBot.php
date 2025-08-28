@@ -245,6 +245,15 @@ class TelegramBot implements TelegramBotInterface
             'url' => $url,
         ], $options);
 
+        // If a local certificate file is provided, use upload
+        if (isset($options['certificate']) && is_string($options['certificate'])) {
+            $files = $this->extractFiles(['certificate' => $options['certificate']]);
+            if (!empty($files)) {
+                $response = $this->httpClient->upload('setWebhook', $parameters, $files);
+                return (bool) $response->getResult();
+            }
+        }
+
         $response = $this->call('setWebhook', $parameters);
         return (bool) $response->getResult();
     }

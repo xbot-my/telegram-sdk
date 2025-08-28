@@ -3,7 +3,7 @@
 ## Webhook Basics
 - setWebhook(url, options): Registers a webhook URL.
   - Required: https URL.
-  - Common options: `secret_token`, `max_connections`, `allowed_updates`.
+  - Common options: `secret_token`, `max_connections`, `allowed_updates`, `certificate` (local file path triggers upload).
 - deleteWebhook(dropPendingUpdates=false): Removes the webhook.
 - getWebhookInfo(): Returns current webhook status and stats.
 
