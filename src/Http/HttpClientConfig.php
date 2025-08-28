@@ -86,6 +86,11 @@ class HttpClientConfig implements HttpClientConfigInterface
      */
     public readonly ?string $botName;
 
+    /**
+     * Token 校验配置
+     */
+    public readonly array $tokenValidation;
+
     public function __construct(
         string $token,
         string $baseUrl = 'https://api.telegram.org/bot',
@@ -101,7 +106,8 @@ class HttpClientConfig implements HttpClientConfigInterface
         bool $debug = false,
         array $headers = [],
         array $middleware = [],
-        ?string $botName = null
+        ?string $botName = null,
+        array $tokenValidation = []
     ) {
         $this->token = $token;
         $this->baseUrl = rtrim($baseUrl, '/');
@@ -116,8 +122,12 @@ class HttpClientConfig implements HttpClientConfigInterface
         $this->maxRedirects = max(0, $maxRedirects);
         $this->debug = $debug;
         $this->headers = $headers;
-        $this->middleware = $middleware;
-        $this->botName = $botName;
+        $this->middleware      = $middleware;
+        $this->botName         = $botName;
+        $this->tokenValidation = array_merge([
+            'enabled' => true,
+            'pattern' => '/^\d+:[a-zA-Z0-9_-]{32,}$/',
+        ], $tokenValidation);
     }
 
     /**
@@ -276,7 +286,8 @@ class HttpClientConfig implements HttpClientConfigInterface
             debug: (bool) ($config['debug'] ?? false),
             headers: $config['headers'] ?? [],
             middleware: $config['middleware'] ?? [],
-            botName: $botName
+            botName: $botName,
+            tokenValidation: $config['token_validation'] ?? []
         );
     }
 
@@ -289,7 +300,7 @@ class HttpClientConfig implements HttpClientConfigInterface
             throw new \InvalidArgumentException('Bot token cannot be empty');
         }
 
-        if (!preg_match('/^\d{8,10}:[a-zA-Z0-9_-]{35}$/', $this->token)) {
+        if (!empty($this->tokenValidation['enabled']) && !preg_match($this->tokenValidation['pattern'], $this->token)) {
             throw new \InvalidArgumentException('Invalid bot token format');
         }
 
@@ -331,6 +342,7 @@ class HttpClientConfig implements HttpClientConfigInterface
             'headers' => $this->headers,
             'middleware' => $this->middleware,
             'bot_name' => $this->botName,
+            'token_validation' => $this->tokenValidation,
             'api_url' => $this->getApiUrl(),
             'file_api_url' => $this->getFileApiUrl(),
         ];

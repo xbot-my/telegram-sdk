@@ -83,7 +83,12 @@ class TelegramBot implements TelegramBotInterface
             throw ConfigurationException::missingBotToken($this->name);
         }
 
-        if (!preg_match('/^\d{8,10}:[a-zA-Z0-9_-]{35}$/', $token)) {
+        $tokenValidation = $this->config['token_validation'] ?? [
+            'enabled' => true,
+            'pattern' => '/^\d+:[a-zA-Z0-9_-]{32,}$/',
+        ];
+
+        if (! empty($tokenValidation['enabled']) && ! preg_match($tokenValidation['pattern'], $token)) {
             throw ConfigurationException::invalidBotToken($token, $this->name);
         }
     }
