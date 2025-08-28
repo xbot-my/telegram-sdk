@@ -178,14 +178,7 @@ jobs:
         EOF
         
         # 生成 robots.txt
-        echo "🤖 生成 robots.txt..."
-        cat > robots.txt << 'EOF'
-User-agent: *
-Allow: /
-
-Sitemap: https://telegram-sdk.xbot.my/sitemap.xml
-EOF
-        
+        echo "🤖 生成 robots.txt..."        
         echo "✅ 文档构建完成"
 
     - name: 📊 Generate build info
