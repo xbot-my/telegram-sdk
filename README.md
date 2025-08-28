@@ -33,6 +33,23 @@ php artisan vendor:publish --provider="XBot\Telegram\Providers\TelegramServicePr
 
 ## 🚀 快速开始
 
+### 一行快速发送（Bot 入口）
+
+```php
+use XBot\Telegram\Bot;
+
+Bot::init([
+    'default' => 'main',
+    'bots' => [
+        'main' => ['token' => 'YOUR_BOT_TOKEN']
+    ],
+]);
+
+Bot::to(123456789)->html()->message('<b>Hello</b>');
+// 指定 Bot
+Bot::via('marketing')->to(123456789)->message('Hi');
+```
+
 ### 基础使用
 
 ```php
