@@ -24,11 +24,11 @@ it('builds reply keyboard with builder and sends', function () {
     )->resize()->oneTime()->placeholder('type...');
 
     $client = new FakeHttpClient(handler: function ($method, $params) use ($rk) {
-        expect($params['reply_markup'])->toBe($rk->toArray());
+        expect(json_decode($params['reply_markup'], true))->toBe($rk->toArray());
         return ['ok' => true, 'result' => ['message_id' => 1, 'date' => time(), 'chat' => ['id' => 1, 'type' => 'private']]];
     });
     $bot = new TelegramBot('t', $client);
-    $bot->sendMessage(1, 'hi', ['reply_markup' => $rk->toArray()]);
+    $bot->message->sendMessage(1, 'hi', ['reply_markup' => $rk->toArray()]);
 });
 
 it('BotMessage accepts builders', function () {
@@ -37,7 +37,7 @@ it('BotMessage accepts builders', function () {
 
     $markups = [];
     $client = new FakeHttpClient(handler: function ($method, $params) use (&$markups) {
-        $markups[] = $params['reply_markup'] ?? null;
+        $markups[] = json_decode($params['reply_markup'] ?? 'null', true);
         return ['ok' => true, 'result' => ['message_id' => rand(1,9), 'date' => time(), 'chat' => ['id' => 1, 'type' => 'private']]];
     });
     $bot = new TelegramBot('t', $client);
