@@ -186,4 +186,4 @@ if ($update->isMessage()) {
 
 <div style="text-align: center; color: #666; margin-top: 2rem;">
   <p>🚀 开始您的 Telegram Bot 开发之旅吧！</p>
-</div>
+</div>Updated at 2025年 8月28日 星期四 20时07分59秒 +08
