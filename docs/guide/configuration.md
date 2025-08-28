@@ -11,6 +11,27 @@ SDK 支持多种配置方式：
 - **Laravel 配置** - 通过 Laravel 配置文件
 - **环境变量** - 使用 `.env` 文件
 
+### 使用 `Bot::init` 的数组结构（推荐）
+
+```php
+use XBot\\Telegram\\Bot;
+
+Bot::init([
+  'default' => 'main',
+  'bots' => [
+    'main' => [
+      'token' => 'YOUR_BOT_TOKEN',
+      'base_url' => 'https://api.telegram.org/bot',
+      'timeout' => 30,
+      'retry_attempts' => 3,
+      'retry_delay' => 1000,
+      // 可选：webhook_url、webhook_secret 等
+    ],
+    // 'marketing' => ['token' => '...'],
+  ],
+]);
+```
+
 ## 🏗️ 基础配置
 
 ### 1. HTTP 客户端配置

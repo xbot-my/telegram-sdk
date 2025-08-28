@@ -54,7 +54,7 @@ Bot::via('marketing')->to(123456789)->message('Hi');
 
 ```php
 use XBot\Telegram\BotManager;
-use XBot\Telegram\Contracts\HttpClientConfig;
+use XBot\Telegram\Http\HttpClientConfig;
 use XBot\Telegram\Http\GuzzleHttpClient;
 use XBot\Telegram\TelegramBot;
 

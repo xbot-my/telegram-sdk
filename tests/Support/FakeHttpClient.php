@@ -18,7 +18,7 @@ class FakeHttpClient implements HttpClientInterface
     /** @var callable(string $method, array $params, array $files): array */
     private $handler;
 
-    public function __construct(string $token = 'TEST_TOKEN', array $config = [], ?callable $handler = null)
+    public function __construct(string $token = '123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', array $config = [], ?callable $handler = null)
     {
         $this->token = $token;
         $this->baseUrl = $config['base_url'] ?? 'https://api.telegram.org/bot';
@@ -61,4 +61,3 @@ class FakeHttpClient implements HttpClientInterface
     public function getLastResponse(): ?TelegramResponse { return $this->last; }
     public function getLastError(): ?\Throwable { return $this->lastError; }
 }
-

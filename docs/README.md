@@ -26,7 +26,29 @@
 composer require xbot-my/telegram-sdk
 ```
 
-### 2. 基础使用
+### 2. 基础使用（推荐 `Bot` 入口）
+
+```php
+<?php
+
+use XBot\\Telegram\\Bot;
+
+Bot::init([
+  'default' => 'main',
+  'bots' => [
+    'main' => ['token' => 'YOUR_BOT_TOKEN'],
+  ],
+]);
+
+// 一行发送
+Bot::to(123456789)->message('你好，世界！');
+
+// 或获取实例
+$bot = Bot::bot();
+$bot->sendMessage(123456789, '再次问好');
+```
+
+### 2. 基础使用（BotManager 传统方式）
 
 ```php
 <?php

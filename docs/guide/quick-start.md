@@ -18,7 +18,7 @@
 composer require xbot-my/telegram-sdk
 ```
 
-### 第 2 步：创建第一个 Bot
+### 第 2 步：用 `Bot` 入口一行发送
 
 创建文件 `my-first-bot.php`：
 
@@ -27,36 +27,23 @@ composer require xbot-my/telegram-sdk
 
 require_once 'vendor/autoload.php';
 
-use XBot\Telegram\BotManager;
-use XBot\Telegram\Http\GuzzleHttpClient;
+use XBot\Telegram\Bot;
 
-// 替换为您的 Bot Token
-$token = '123456789:AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRa';
+// 初始化（可同时配置多个 Bot）
+Bot::init([
+    'default' => 'main',
+    'bots' => [
+        'main' => ['token' => '123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'],
+        // 可选：更多 Bot
+        // 'marketing' => ['token' => '...'],
+    ],
+]);
 
-// 创建 HTTP 客户端
-$httpClient = new GuzzleHttpClient($token);
+// 一行发送（默认 Bot）
+Bot::to(123456789)->html()->message('<b>Hello, World!</b>');
 
-// 创建 Bot 管理器
-$manager = new BotManager();
-
-// 创建 Bot 实例
-$bot = $manager->createBot('my-bot', $httpClient);
-
-// 获取 Bot 信息
-try {
-    $botInfo = $bot->getMe();
-    echo "🤖 Bot 已连接: @{$botInfo->username}\n";
-    echo "📝 Bot 名称: {$botInfo->firstName}\n";
-    
-    // 发送测试消息（替换为您的聊天 ID）
-    $chatId = 'YOUR_CHAT_ID'; // 例如: 123456789
-    $message = $bot->sendMessage($chatId, '🎉 Hello, World! Bot 运行正常！');
-    
-    echo "✅ 消息发送成功，消息ID: {$message->messageId}\n";
-    
-} catch (Exception $e) {
-    echo "❌ 错误: " . $e->getMessage() . "\n";
-}
+// 指定 Bot 发送
+// Bot::via('marketing')->to(123456789)->markdown()->message('*Hi*');
 ```
 
 ### 第 3 步：运行脚本
@@ -90,14 +77,17 @@ php my-first-bot.php
 
 require_once 'vendor/autoload.php';
 
-use XBot\Telegram\BotManager;
-use XBot\Telegram\Http\GuzzleHttpClient;
+use XBot\Telegram\Bot;
 use XBot\Telegram\Models\DTO\Update;
 
-$token = 'YOUR_BOT_TOKEN';
-$httpClient = new GuzzleHttpClient($token);
-$manager = new BotManager();
-$bot = $manager->createBot('interactive', $httpClient);
+Bot::init([
+    'default' => 'main',
+    'bots' => [
+        'main' => ['token' => 'YOUR_BOT_TOKEN'],
+    ],
+]);
+
+$bot = Bot::bot(); // 默认 Bot 实例
 
 // 获取更新
 $updates = $bot->getUpdates(['limit' => 10]);
@@ -251,15 +241,16 @@ Route::post('/telegram/send-welcome', [TelegramController::class, 'sendWelcome']
 
 require_once 'vendor/autoload.php';
 
-use XBot\Telegram\BotManager;
-use XBot\Telegram\Http\GuzzleHttpClient;
+use XBot\Telegram\Bot;
 
-$token = 'YOUR_BOT_TOKEN';
-$webhookUrl = 'https://yourapp.com/telegram/webhook';
+Bot::init([
+    'default' => 'main',
+    'bots' => [
+        'main' => ['token' => 'YOUR_BOT_TOKEN'],
+    ],
+]);
 
-$httpClient = new GuzzleHttpClient($token);
-$manager = new BotManager();
-$bot = $manager->createBot('webhook', $httpClient);
+$bot = Bot::bot();
 
 // 设置 Webhook
 $result = $bot->setWebhook($webhookUrl);
@@ -286,15 +277,16 @@ echo "📡 当前 Webhook：{$webhookInfo['url']}\n";
 
 require_once 'vendor/autoload.php';
 
-use XBot\Telegram\BotManager;
-use XBot\Telegram\Http\GuzzleHttpClient;
+use XBot\Telegram\Bot;
 
-$token = 'YOUR_BOT_TOKEN';
-$chatId = 'YOUR_CHAT_ID';
+Bot::init([
+    'default' => 'main',
+    'bots' => [
+        'main' => ['token' => 'YOUR_BOT_TOKEN'],
+    ],
+]);
 
-$httpClient = new GuzzleHttpClient($token);
-$manager = new BotManager();
-$bot = $manager->createBot('rich', $httpClient);
+$bot = Bot::bot();
 
 // 1. 发送带内联键盘的消息
 $bot->sendMessage($chatId, '🎮 选择您的操作：', [

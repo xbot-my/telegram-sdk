@@ -4,6 +4,30 @@
 
 ## 🚀 快速开始
 
+### 0. 使用 `Bot` 入口一行发送（推荐）
+
+```php
+<?php
+
+require_once 'vendor/autoload.php';
+
+use XBot\\Telegram\\Bot;
+
+Bot::init([
+    'default' => 'main',
+    'bots' => [
+        'main' => ['token' => 'YOUR_BOT_TOKEN'],
+    ],
+]);
+
+// 一行发送
+Bot::to(123456789)->message('Hello, World!');
+
+// 或获取实例执行更多操作
+$bot = Bot::bot();
+$bot->sendMessage(123456789, 'Hello again!');
+```
+
 ### 1. 创建第一个 Bot
 
 ```php

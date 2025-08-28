@@ -163,7 +163,7 @@ while IFS= read -r line; do
         echo "  ❌ 损坏的链接: $file -> $link"
         ((broken_links++))
     fi
-done < <(grep -r "\[.*\](.*\.md)" . --include="*.md" | grep -v "http")
+done < <(grep -r "\[.*\](.*\.md)" . --include="*.md" --exclude-dir "node_modules" | grep -v "http")
 
 if [ $broken_links -eq 0 ]; then
     echo "  ✅ 未发现损坏的内部链接"
@@ -189,8 +189,8 @@ echo "🚀 检查GitHub Actions..."
 if [ -f "../.github/workflows/docs.yml" ]; then
     echo "  ✅ GitHub Actions 工作流存在"
 else
-    echo "  ❌ GitHub Actions 工作流缺失"
-    ((errors++))
+    echo "  ⚠️  GitHub Actions 工作流缺失（非必需，已忽略）"
+    ((warnings++))
 fi
 
 # 10. 最终结果

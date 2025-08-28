@@ -1,65 +1,64 @@
 {
-    "name": "xbot-my/telegram-sdk",
-    "description": "Telegram Bot PHP SDK",
-    "type": "library",
-    "require": {
-        "php": "^8.3",
-        "ext-json": "*",
-        "guzzlehttp/guzzle": "^7.10",
-        "guzzlehttp/psr7": "^2.8",
-        "psr/http-message": "^1.0 || ^2.0",
-        "illuminate/contracts": "^11.0||^12.0"
-    },
-    "require-dev": {
-        "larastan/larastan": "^3.0",
-        "nunomaduro/collision": "^8.8",
-        "orchestra/testbench": "^9.0.0 || ^10.0.0",
-        "pestphp/pest": "^4.0",
-        "pestphp/pest-plugin-arch": "^4.0",
-        "pestphp/pest-plugin-laravel": "^4.0",
-        "phpstan/extension-installer": "^1.4",
-        "phpstan/phpstan-deprecation-rules": "^2.0",
-        "phpstan/phpstan-phpunit": "^2.0"
-    },
-    "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "XBot\\Telegram\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "XBot\\Telegram\\Tests\\": "tests/",
-            "Workbench\\App\\": "workbench/app/"
-        }
-    },
-    "authors": [
-        {
-            "name": "xbot",
-            "email": "admin@xbot.my"
-        }
-    ],
-    "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
-    },
+  "name": "xbot-my/telegram-sdk",
+  "description": "Telegram Bot PHP SDK",
+  "type": "library",
+  "require": {
+    "php": "^8.3",
+    "ext-json": "*",
+    "guzzlehttp/guzzle": "^7.10",
+    "guzzlehttp/psr7": "^2.8",
+    "psr/http-message": "^1.0 || ^2.0",
+    "illuminate/contracts": "^11.0||^12.0"
+  },
+  "require-dev": {
+    "larastan/larastan": "^3.0",
+    "nunomaduro/collision": "^8.8",
+    "orchestra/testbench": "^9.0.0 || ^10.0.0",
+    "pestphp/pest": "^4.0",
+    "pestphp/pest-plugin-arch": "^4.0",
+    "pestphp/pest-plugin-laravel": "^4.0",
+    "phpstan/extension-installer": "^1.4",
+    "phpstan/phpstan-deprecation-rules": "^2.0",
+    "phpstan/phpstan-phpunit": "^2.0"
+  },
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "XBot\\Telegram\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "XBot\\Telegram\\Tests\\": "tests/",
+      "Workbench\\App\\": "workbench/app/"
+    }
+  },
+  "authors": [
+    {
+      "name": "xbot",
+      "email": "admin@xbot.my"
+    }
+  ],
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
   "extra": {
-        "laravel": {
-            "providers": [
-                "XBot\\Telegram\\Providers\\TelegramServiceProvider"
-            ],
-            "aliases": {
-                "Telegram": "XBot\\Telegram\\Facades\\Telegram"
-  }
-  ,
+    "laravel": {
+      "providers": [
+        "XBot\\Telegram\\Providers\\TelegramServiceProvider"
+      ],
+      "aliases": {
+        "Telegram": "XBot\\Telegram\\Facades\\Telegram"
+      }
+    }
+  },
   "scripts": {
     "test": "vendor/bin/pest -q",
     "phpunit": "vendor/bin/phpunit",
     "stan": "vendor/bin/phpstan analyse --memory-limit=512M",
     "lint": "vendor/bin/pint || echo 'Install laravel/pint to enable linting'"
   }
-}
-    }
 }
