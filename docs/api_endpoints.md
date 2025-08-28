@@ -67,3 +67,17 @@ $bot->setMyCommands([
   ['command' => 'help', 'description' => 'Help menu'],
 ], [ 'scope' => ['type' => 'default'], 'language_code' => '' ]);
 ```
+## Inline Queries
+- Build results via helpers or arrays, then call `answerInlineQuery(id, results, options)`.
+
+Example
+```
+use XBot\\Telegram\\Inline\\InlineResultBuilder as IR;
+
+$results = [
+  IR::article('1', 'Hello', IR::markdown('*Hi*')),
+  IR::photo('2', 'https://example.com/p.jpg', 'https://example.com/t.jpg', ['caption' => 'cap']),
+];
+
+$bot->answerInlineQuery('INLINE_QUERY_ID', $results, ['cache_time' => 0]);
+```
