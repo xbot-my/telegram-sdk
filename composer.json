@@ -48,7 +48,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "XBot\\Telegram\\TelegramServiceProvider"
+                "XBot\\Telegram\\Providers\\TelegramServiceProvider"
             ],
             "aliases": {
                 "Telegram": "XBot\\Telegram\\Facades\\Telegram"
