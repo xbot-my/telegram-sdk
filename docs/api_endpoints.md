@@ -36,3 +36,10 @@ Bot::to(123456)->html()->message('<b>Hello</b>');
 Notes
 - Local file paths automatically go through upload for media endpoints.
 - Validation: chat IDs, message IDs, coordinates, and webhook URLs are validated before request.
+
+## Chat/Admin Basics
+- getChatAdministrators(chatId): List admins of a chat.
+- setChatTitle(chatId, title) / setChatDescription(chatId, desc): Update chat metadata.
+- setChatPhoto(chatId, photo) / deleteChatPhoto(chatId): Set/remove photo (local path triggers upload).
+- pinChatMessage(chatId, messageId, disableNotification=false) / unpinChatMessage(chatId, messageId=null) / unpinAllChatMessages(chatId): Pin controls.
+- leaveChat(chatId): Bot leaves the chat.

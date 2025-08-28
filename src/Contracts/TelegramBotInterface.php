@@ -207,6 +207,51 @@ interface TelegramBotInterface
     public function getChatMemberCount(int|string $chatId): int;
 
     /**
+     * 获取聊天管理员
+     */
+    public function getChatAdministrators(int|string $chatId): array;
+
+    /**
+     * 设置聊天照片
+     */
+    public function setChatPhoto(int|string $chatId, string $photo): bool;
+
+    /**
+     * 删除聊天照片
+     */
+    public function deleteChatPhoto(int|string $chatId): bool;
+
+    /**
+     * 设置聊天标题
+     */
+    public function setChatTitle(int|string $chatId, string $title): bool;
+
+    /**
+     * 设置聊天描述
+     */
+    public function setChatDescription(int|string $chatId, string $description = ''): bool;
+
+    /**
+     * 固定聊天消息
+     */
+    public function pinChatMessage(int|string $chatId, int $messageId, bool $disableNotification = false): bool;
+
+    /**
+     * 取消固定聊天消息
+     */
+    public function unpinChatMessage(int|string $chatId, int $messageId = null): bool;
+
+    /**
+     * 取消固定所有聊天消息
+     */
+    public function unpinAllChatMessages(int|string $chatId): bool;
+
+    /**
+     * 离开聊天
+     */
+    public function leaveChat(int|string $chatId): bool;
+
+    /**
      * 封禁聊天成员
      */
     public function banChatMember(

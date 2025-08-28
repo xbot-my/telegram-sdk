@@ -485,6 +485,168 @@ class TelegramBot implements TelegramBotInterface
     }
 
     /**
+     * 获取聊天管理员
+     */
+    public function getChatAdministrators(int|string $chatId): array
+    {
+        $this->validateChatId($chatId);
+
+        $parameters = [
+            'chat_id' => $chatId,
+        ];
+
+        $response = $this->call('getChatAdministrators', $parameters);
+        return $response->getResult();
+    }
+
+    /**
+     * 设置聊天照片
+     */
+    public function setChatPhoto(int|string $chatId, string $photo): bool
+    {
+        $this->validateChatId($chatId);
+
+        $parameters = [
+            'chat_id' => $chatId,
+        ];
+
+        $files = $this->extractFiles(['photo' => $photo]);
+        if (!empty($files)) {
+            $response = $this->httpClient->upload('setChatPhoto', $parameters, $files);
+        } else {
+            $parameters['photo'] = $photo;
+            $response = $this->call('setChatPhoto', $parameters);
+        }
+
+        return (bool) $response->getResult();
+    }
+
+    /**
+     * 删除聊天照片
+     */
+    public function deleteChatPhoto(int|string $chatId): bool
+    {
+        $this->validateChatId($chatId);
+
+        $parameters = [
+            'chat_id' => $chatId,
+        ];
+
+        $response = $this->call('deleteChatPhoto', $parameters);
+        return (bool) $response->getResult();
+    }
+
+    /**
+     * 设置聊天标题
+     */
+    public function setChatTitle(int|string $chatId, string $title): bool
+    {
+        $this->validateChatId($chatId);
+
+        if ($title === '') {
+            throw ValidationException::required('title');
+        }
+        if (strlen($title) > 128) {
+            throw ValidationException::invalidLength('title', 0, 128, $title);
+        }
+
+        $parameters = [
+            'chat_id' => $chatId,
+            'title' => $title,
+        ];
+
+        $response = $this->call('setChatTitle', $parameters);
+        return (bool) $response->getResult();
+    }
+
+    /**
+     * 设置聊天描述
+     */
+    public function setChatDescription(int|string $chatId, string $description = ''): bool
+    {
+        $this->validateChatId($chatId);
+
+        if (strlen($description) > 255) {
+            throw ValidationException::invalidLength('description', 0, 255, $description);
+        }
+
+        $parameters = [
+            'chat_id' => $chatId,
+            'description' => $description,
+        ];
+
+        $response = $this->call('setChatDescription', $parameters);
+        return (bool) $response->getResult();
+    }
+
+    /**
+     * 固定聊天消息
+     */
+    public function pinChatMessage(int|string $chatId, int $messageId, bool $disableNotification = false): bool
+    {
+        $this->validateChatId($chatId);
+        $this->validateMessageId($messageId);
+
+        $parameters = [
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+            'disable_notification' => $disableNotification,
+        ];
+
+        $response = $this->call('pinChatMessage', $parameters);
+        return (bool) $response->getResult();
+    }
+
+    /**
+     * 取消固定聊天消息
+     */
+    public function unpinChatMessage(int|string $chatId, int $messageId = null): bool
+    {
+        $this->validateChatId($chatId);
+        if ($messageId !== null) {
+            $this->validateMessageId($messageId);
+        }
+
+        $parameters = [
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+        ];
+
+        $response = $this->call('unpinChatMessage', $parameters);
+        return (bool) $response->getResult();
+    }
+
+    /**
+     * 取消固定所有聊天消息
+     */
+    public function unpinAllChatMessages(int|string $chatId): bool
+    {
+        $this->validateChatId($chatId);
+
+        $parameters = [
+            'chat_id' => $chatId,
+        ];
+
+        $response = $this->call('unpinAllChatMessages', $parameters);
+        return (bool) $response->getResult();
+    }
+
+    /**
+     * 离开聊天
+     */
+    public function leaveChat(int|string $chatId): bool
+    {
+        $this->validateChatId($chatId);
+
+        $parameters = [
+            'chat_id' => $chatId,
+        ];
+
+        $response = $this->call('leaveChat', $parameters);
+        return (bool) $response->getResult();
+    }
+
+    /**
      * 封禁聊天成员
      */
     public function banChatMember(
