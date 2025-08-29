@@ -10,7 +10,7 @@ use XBot\Telegram\Models\Response\ResponseFormat;
 
 /**
  * API 方法基础抽象类
- * 
+ *
  * 为所有 API 方法分组提供通用功能
  */
 abstract class BaseMethodGroup
@@ -29,6 +29,10 @@ abstract class BaseMethodGroup
      * Result formatting preference.
      */
     protected string $returnFormat = ResponseFormat::ARRAY;
+    /**
+     * One-shot format consumed on next formatting.
+     */
+    protected ?string $oneShotReturnFormat = null;
 
     public function __construct(HttpClientInterface $httpClient, string $botName, string $returnFormat = ResponseFormat::ARRAY)
     {
@@ -70,11 +74,31 @@ abstract class BaseMethodGroup
     }
 
     /**
+     * Get current return format.
+     */
+    public function getReturnFormat(): string
+    {
+        return $this->returnFormat;
+    }
+
+    /**
+     * Set a one-shot return format. Consumed on next call to formatResult.
+     */
+    public function setOneShotReturnFormat(string $format): void
+    {
+        $this->oneShotReturnFormat = $format;
+    }
+
+    /**
      * Format a result payload according to preference.
      */
     protected function formatResult(mixed $data): mixed
     {
-        switch ($this->returnFormat) {
+        $format = $this->oneShotReturnFormat ?? $this->returnFormat;
+        // consume one-shot format if present
+        $this->oneShotReturnFormat = null;
+
+        switch ($format) {
             case ResponseFormat::ARRAY:
                 return $data;
             case ResponseFormat::OBJECT:
@@ -83,7 +107,7 @@ abstract class BaseMethodGroup
                 return json_encode($data, JSON_UNESCAPED_UNICODE);
             case ResponseFormat::COLLECTION:
                 if (class_exists('Illuminate\\Support\\Collection')) {
-                    return \Illuminate\Support\collect($data);
+                    return new \Illuminate\Support\Collection($data);
                 }
                 throw new \RuntimeException('Collection format requires illuminate/support.');
             default:
