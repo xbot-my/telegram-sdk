@@ -18,10 +18,10 @@ class UpdateMethods extends BaseMethodGroup
     /**
      * 获取 Bot 信息
      */
-    public function getMe(): User
+    public function getMe(): mixed
     {
-        $response = $this->call('getMe');
-        return $response->toDTO(User::class);
+        $response = $this->call('getMe')->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -45,11 +45,11 @@ class UpdateMethods extends BaseMethodGroup
     /**
      * 获取更新
      */
-    public function getUpdates(array $options = []): array
+    public function getUpdates(array $options = []): mixed
     {
         $parameters = $this->prepareParameters($options);
-        $response = $this->call('getUpdates', $parameters);
-        return $response->toDTOArray(Update::class);
+        $response = $this->call('getUpdates', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -124,10 +124,10 @@ class UpdateMethods extends BaseMethodGroup
     /**
      * 获取 Webhook 信息
      */
-    public function getWebhookInfo(): array
+    public function getWebhookInfo(): mixed
     {
-        $response = $this->call('getWebhookInfo');
-        return $response->getResult();
+        $response = $this->call('getWebhookInfo')->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**

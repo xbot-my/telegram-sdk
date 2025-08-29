@@ -6,6 +6,7 @@ namespace XBot\Telegram\Methods;
 
 use XBot\Telegram\Contracts\HttpClientInterface;
 use XBot\Telegram\Models\Response\TelegramResponse;
+use XBot\Telegram\Models\Response\ResponseFormat;
 
 /**
  * API 方法基础抽象类
@@ -24,10 +25,16 @@ abstract class BaseMethodGroup
      */
     protected string $botName;
 
-    public function __construct(HttpClientInterface $httpClient, string $botName)
+    /**
+     * Result formatting preference.
+     */
+    protected string $returnFormat = ResponseFormat::ARRAY;
+
+    public function __construct(HttpClientInterface $httpClient, string $botName, string $returnFormat = ResponseFormat::ARRAY)
     {
         $this->httpClient = $httpClient;
         $this->botName = $botName;
+        $this->returnFormat = $returnFormat;
     }
 
     /**
@@ -52,6 +59,56 @@ abstract class BaseMethodGroup
     public function getBotName(): string
     {
         return $this->botName;
+    }
+
+    /**
+     * Update return format for this method group.
+     */
+    public function setReturnFormat(string $format): void
+    {
+        $this->returnFormat = $format;
+    }
+
+    /**
+     * Format a result payload according to preference.
+     */
+    protected function formatResult(mixed $data): mixed
+    {
+        switch ($this->returnFormat) {
+            case ResponseFormat::ARRAY:
+                return $data;
+            case ResponseFormat::OBJECT:
+                return self::toObject($data);
+            case ResponseFormat::JSON:
+                return json_encode($data, JSON_UNESCAPED_UNICODE);
+            case ResponseFormat::COLLECTION:
+                if (class_exists('Illuminate\\Support\\Collection')) {
+                    return \Illuminate\Support\collect($data);
+                }
+                throw new \RuntimeException('Collection format requires illuminate/support.');
+            default:
+                return $data;
+        }
+    }
+
+    /**
+     * Convert array payload recursively to stdClass object(s).
+     */
+    protected static function toObject(mixed $data): mixed
+    {
+        if (is_array($data)) {
+            // Preserve numeric arrays as lists of objects/values
+            if (array_is_list($data)) {
+                return array_map([self::class, 'toObject'], $data);
+            }
+
+            $obj = new \stdClass();
+            foreach ($data as $k => $v) {
+                $obj->{$k} = self::toObject($v);
+            }
+            return $obj;
+        }
+        return $data;
     }
 
     /**

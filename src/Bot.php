@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace XBot\Telegram;
 
 use XBot\Telegram\Exceptions\ConfigurationException;
+use XBot\Telegram\Http\GuzzleHttpClient;
+use XBot\Telegram\Http\HttpClientConfig;
 
 /**
  * Bot: minimal entrypoint for common operations.
@@ -19,7 +21,32 @@ class Bot
     protected static ?BotManager $manager = null;
 
     /**
+     * Create a simple SDK instance by token.
+     *
+     * This bypasses BotManager and returns a standalone TelegramBot
+     * configured with sane defaults. Ideal for single-bot, minimal usage.
+     */
+    public static function token(string $token): TelegramBot
+    {
+        $name = 'default';
+        $config = HttpClientConfig::fromArray([
+            'token' => $token,
+        ], $name);
+
+        $client = new GuzzleHttpClient($config);
+
+        return new TelegramBot($name, $client, [
+            'token_validation' => [
+                'enabled' => true,
+                'pattern' => '/^\d+:[a-zA-Z0-9_-]{32,}$/',
+            ],
+        ]);
+    }
+
+    /**
      * Initialize with configuration array compatible with config/telegram.php structure.
+     *
+     * @deprecated Prefer Bot::token() for simple single-bot usage.
      */
     public static function init(array $config): void
     {
@@ -28,6 +55,8 @@ class Bot
 
     /**
      * Provide an existing manager (e.g., from a container).
+     *
+     * @deprecated Prefer Bot::token() for simple single-bot usage.
      */
     public static function useManager(BotManager $manager): void
     {
@@ -36,6 +65,8 @@ class Bot
 
     /**
      * Get the underlying manager or throw if not initialized.
+     *
+     * @deprecated Prefer Bot::token() for simple single-bot usage.
      */
     protected static function manager(): BotManager
     {
@@ -48,6 +79,8 @@ class Bot
 
     /**
      * Get a bot instance.
+     *
+     * @deprecated Prefer Bot::token() for simple single-bot usage.
      */
     public static function bot(?string $name = null): TelegramBot
     {
@@ -56,6 +89,8 @@ class Bot
 
     /**
      * Shortcut to select a bot for chaining.
+     *
+     * @deprecated Prefer Bot::token() for simple single-bot usage.
      */
     public static function via(string $name): BotMessage
     {
@@ -64,6 +99,8 @@ class Bot
 
     /**
      * Begin a message chain to a chat using the default bot.
+     *
+     * @deprecated Prefer Bot::token() and call sendMessage() directly.
      */
     public static function to(int|string $chatId): BotMessage
     {

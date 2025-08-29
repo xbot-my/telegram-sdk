@@ -16,7 +16,7 @@ class ChatMethods extends BaseMethodGroup
     /**
      * 获取聊天信息
      */
-    public function getChat(int|string $chatId): Chat
+    public function getChat(int|string $chatId): mixed
     {
         $this->validateChatId($chatId);
 
@@ -24,8 +24,8 @@ class ChatMethods extends BaseMethodGroup
             'chat_id' => $chatId,
         ]);
 
-        $response = $this->call('getChat', $parameters);
-        return $response->toDTO(Chat::class);
+        $response = $this->call('getChat', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**

@@ -21,7 +21,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         string $text,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateTextLength($text, 4096);
 
@@ -30,8 +30,8 @@ class MessageMethods extends BaseMethodGroup
             'text' => $text,
         ], $options));
 
-        $response = $this->call('sendMessage', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('sendMessage', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -42,7 +42,7 @@ class MessageMethods extends BaseMethodGroup
         int $messageId,
         string $text,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateMessageId($messageId);
         $this->validateTextLength($text, 4096);
@@ -53,8 +53,8 @@ class MessageMethods extends BaseMethodGroup
             'text' => $text,
         ], $options));
 
-        $response = $this->call('editMessageText', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('editMessageText', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**

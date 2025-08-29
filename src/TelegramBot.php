@@ -9,6 +9,7 @@ use XBot\Telegram\Exceptions\ConfigurationException;
 use XBot\Telegram\Methods\BaseMethodGroup;
 use XBot\Telegram\Models\DTO\User;
 use XBot\Telegram\Models\Response\TelegramResponse;
+use XBot\Telegram\Models\Response\ResponseFormat;
 
 class TelegramBot
 {
@@ -38,6 +39,8 @@ class TelegramBot
         'game',
         'update',
     ];
+
+    protected string $returnFormat = ResponseFormat::ARRAY;
 
     public function __construct(string $name, HttpClientInterface $httpClient, array $config = [])
     {
@@ -100,7 +103,10 @@ class TelegramBot
 
         if (!isset($this->methodGroups[$group])) {
             $class = __NAMESPACE__ . '\\Methods\\' . ucfirst($group) . 'Methods';
-            $this->methodGroups[$group] = new $class($this->httpClient, $this->name);
+            $this->methodGroups[$group] = new $class($this->httpClient, $this->name, $this->returnFormat);
+        } else {
+            // Keep existing instances in sync with current format
+            $this->methodGroups[$group]->setReturnFormat($this->returnFormat);
         }
 
         return $this->methodGroups[$group];
@@ -109,6 +115,32 @@ class TelegramBot
     public function __get(string $name): BaseMethodGroup
     {
         return $this->methods($name);
+    }
+
+    /**
+     * Convenience accessor to chat method group for fluent usage.
+     */
+    public function chat(): BaseMethodGroup
+    {
+        return $this->methods('chat');
+    }
+
+    /**
+     * Set preferred return format for method results.
+     */
+    public function as(string $format): static
+    {
+        $this->returnFormat = $format;
+        // propagate to already-instantiated groups
+        foreach ($this->methodGroups as $group => $instance) {
+            $instance->setReturnFormat($format);
+        }
+        return $this;
+    }
+
+    public function getReturnFormat(): string
+    {
+        return $this->returnFormat;
     }
 
     public function __call(string $method, array $parameters)
