@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace XBot\Telegram\Methods;
 
-use XBot\Telegram\Models\DTO\Message;
-use XBot\Telegram\Models\Response\TelegramResponse;
 
 /**
  * 消息相关的 API 方法
@@ -21,7 +19,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         string $text,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateTextLength($text, 4096);
 
@@ -30,8 +28,8 @@ class MessageMethods extends BaseMethodGroup
             'text' => $text,
         ], $options));
 
-        $response = $this->call('sendMessage', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('sendMessage', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -42,7 +40,7 @@ class MessageMethods extends BaseMethodGroup
         int $messageId,
         string $text,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateMessageId($messageId);
         $this->validateTextLength($text, 4096);
@@ -53,8 +51,8 @@ class MessageMethods extends BaseMethodGroup
             'text' => $text,
         ], $options));
 
-        $response = $this->call('editMessageText', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('editMessageText', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -84,7 +82,7 @@ class MessageMethods extends BaseMethodGroup
         int $messageId,
         array $media,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateMessageId($messageId);
 
@@ -97,13 +95,12 @@ class MessageMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
         
-        if (!empty($files)) {
-            $response = $this->upload('editMessageMedia', $parameters, $files);
-        } else {
-            $response = $this->call('editMessageMedia', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('editMessageMedia', $parameters, $files)
+            : $this->call('editMessageMedia', $parameters);
 
-        return $response->toDTO(Message::class);
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -113,7 +110,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         int $messageId,
         array $replyMarkup = null
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateMessageId($messageId);
 
@@ -123,8 +120,8 @@ class MessageMethods extends BaseMethodGroup
             'reply_markup' => $replyMarkup,
         ]);
 
-        $response = $this->call('editMessageReplyMarkup', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('editMessageReplyMarkup', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -134,7 +131,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         int $messageId,
         array $replyMarkup = null
-    ): array {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateMessageId($messageId);
 
@@ -144,8 +141,8 @@ class MessageMethods extends BaseMethodGroup
             'reply_markup' => $replyMarkup,
         ]);
 
-        $response = $this->call('stopPoll', $parameters);
-        return $response->getResult();
+        $response = $this->call('stopPoll', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -201,7 +198,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $fromChatId,
         int $messageId,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateChatId($fromChatId);
         $this->validateMessageId($messageId);
@@ -212,8 +209,8 @@ class MessageMethods extends BaseMethodGroup
             'message_id' => $messageId,
         ], $options));
 
-        $response = $this->call('forwardMessage', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('forwardMessage', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -224,7 +221,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $fromChatId,
         array $messageIds,
         array $options = []
-    ): array {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateChatId($fromChatId);
 
@@ -242,8 +239,8 @@ class MessageMethods extends BaseMethodGroup
             'message_ids' => $messageIds,
         ], $options));
 
-        $response = $this->call('forwardMessages', $parameters);
-        return $response->getResult();
+        $response = $this->call('forwardMessages', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -254,7 +251,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $fromChatId,
         int $messageId,
         array $options = []
-    ): int {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateChatId($fromChatId);
         $this->validateMessageId($messageId);
@@ -265,8 +262,8 @@ class MessageMethods extends BaseMethodGroup
             'message_id' => $messageId,
         ], $options));
 
-        $response = $this->call('copyMessage', $parameters);
-        return (int) $response->getResult()['message_id'];
+        $response = $this->call('copyMessage', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -277,7 +274,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $fromChatId,
         array $messageIds,
         array $options = []
-    ): array {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateChatId($fromChatId);
 
@@ -295,8 +292,8 @@ class MessageMethods extends BaseMethodGroup
             'message_ids' => $messageIds,
         ], $options));
 
-        $response = $this->call('copyMessages', $parameters);
-        return $response->getResult();
+        $response = $this->call('copyMessages', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -306,7 +303,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         string $photo,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -317,13 +314,12 @@ class MessageMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
         
-        if (!empty($files)) {
-            $response = $this->upload('sendPhoto', $parameters, $files);
-        } else {
-            $response = $this->call('sendPhoto', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendPhoto', $parameters, $files)
+            : $this->call('sendPhoto', $parameters);
 
-        return $response->toDTO(Message::class);
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -333,7 +329,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         string $audio,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -344,13 +340,12 @@ class MessageMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
         
-        if (!empty($files)) {
-            $response = $this->upload('sendAudio', $parameters, $files);
-        } else {
-            $response = $this->call('sendAudio', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendAudio', $parameters, $files)
+            : $this->call('sendAudio', $parameters);
 
-        return $response->toDTO(Message::class);
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -360,7 +355,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         string $document,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -371,13 +366,12 @@ class MessageMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
         
-        if (!empty($files)) {
-            $response = $this->upload('sendDocument', $parameters, $files);
-        } else {
-            $response = $this->call('sendDocument', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendDocument', $parameters, $files)
+            : $this->call('sendDocument', $parameters);
 
-        return $response->toDTO(Message::class);
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -398,13 +392,12 @@ class MessageMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
         
-        if (!empty($files)) {
-            $response = $this->upload('sendVideo', $parameters, $files);
-        } else {
-            $response = $this->call('sendVideo', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendVideo', $parameters, $files)
+            : $this->call('sendVideo', $parameters);
 
-        return $response->toDTO(Message::class);
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -414,7 +407,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         string $animation,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -425,13 +418,12 @@ class MessageMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
         
-        if (!empty($files)) {
-            $response = $this->upload('sendAnimation', $parameters, $files);
-        } else {
-            $response = $this->call('sendAnimation', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendAnimation', $parameters, $files)
+            : $this->call('sendAnimation', $parameters);
 
-        return $response->toDTO(Message::class);
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -441,7 +433,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         string $voice,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -452,13 +444,12 @@ class MessageMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
         
-        if (!empty($files)) {
-            $response = $this->upload('sendVoice', $parameters, $files);
-        } else {
-            $response = $this->call('sendVoice', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendVoice', $parameters, $files)
+            : $this->call('sendVoice', $parameters);
 
-        return $response->toDTO(Message::class);
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -468,7 +459,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         string $videoNote,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -479,13 +470,12 @@ class MessageMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
         
-        if (!empty($files)) {
-            $response = $this->upload('sendVideoNote', $parameters, $files);
-        } else {
-            $response = $this->call('sendVideoNote', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendVideoNote', $parameters, $files)
+            : $this->call('sendVideoNote', $parameters);
 
-        return $response->toDTO(Message::class);
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -495,7 +485,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         array $media,
         array $options = []
-    ): array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         if (empty($media)) {
@@ -514,13 +504,12 @@ class MessageMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('sendMediaGroup', $parameters, $files);
-        } else {
-            $response = $this->call('sendMediaGroup', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendMediaGroup', $parameters, $files)
+            : $this->call('sendMediaGroup', $parameters);
 
-        return $response->toDTOArray(Message::class);
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -531,7 +520,7 @@ class MessageMethods extends BaseMethodGroup
         float $latitude,
         float $longitude,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateCoordinates($latitude, $longitude);
 
@@ -541,8 +530,8 @@ class MessageMethods extends BaseMethodGroup
             'longitude' => $longitude,
         ], $options));
 
-        $response = $this->call('sendLocation', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('sendLocation', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -554,7 +543,7 @@ class MessageMethods extends BaseMethodGroup
         float $latitude,
         float $longitude,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateMessageId($messageId);
         $this->validateCoordinates($latitude, $longitude);
@@ -566,8 +555,8 @@ class MessageMethods extends BaseMethodGroup
             'longitude' => $longitude,
         ], $options));
 
-        $response = $this->call('editMessageLiveLocation', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('editMessageLiveLocation', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -577,7 +566,7 @@ class MessageMethods extends BaseMethodGroup
         int|string $chatId,
         int $messageId,
         array $replyMarkup = null
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateMessageId($messageId);
 
@@ -587,8 +576,8 @@ class MessageMethods extends BaseMethodGroup
             'reply_markup' => $replyMarkup,
         ]);
 
-        $response = $this->call('stopMessageLiveLocation', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('stopMessageLiveLocation', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -601,7 +590,7 @@ class MessageMethods extends BaseMethodGroup
         string $title,
         string $address,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateCoordinates($latitude, $longitude);
 
@@ -621,8 +610,8 @@ class MessageMethods extends BaseMethodGroup
             'address' => $address,
         ], $options));
 
-        $response = $this->call('sendVenue', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('sendVenue', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -633,7 +622,7 @@ class MessageMethods extends BaseMethodGroup
         string $phoneNumber,
         string $firstName,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
 
         if (empty($phoneNumber)) {
@@ -650,8 +639,8 @@ class MessageMethods extends BaseMethodGroup
             'first_name' => $firstName,
         ], $options));
 
-        $response = $this->call('sendContact', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('sendContact', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -662,7 +651,7 @@ class MessageMethods extends BaseMethodGroup
         string $question,
         array $options,
         array $settings = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
 
         if (empty($question)) {
@@ -683,8 +672,8 @@ class MessageMethods extends BaseMethodGroup
             'options' => $options,
         ], $settings));
 
-        $response = $this->call('sendPoll', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('sendPoll', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -693,14 +682,14 @@ class MessageMethods extends BaseMethodGroup
     public function sendDice(
         int|string $chatId,
         array $options = []
-    ): Message {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = $this->prepareParameters(array_merge([
             'chat_id' => $chatId,
         ], $options));
 
-        $response = $this->call('sendDice', $parameters);
-        return $response->toDTO(Message::class);
+        $response = $this->call('sendDice', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 }

@@ -7,15 +7,16 @@ namespace XBot\Telegram;
 use XBot\Telegram\Contracts\HttpClientInterface;
 use XBot\Telegram\Exceptions\ConfigurationException;
 use XBot\Telegram\Methods\BaseMethodGroup;
-use XBot\Telegram\Models\DTO\User;
 use XBot\Telegram\Models\Response\TelegramResponse;
+use XBot\Telegram\Models\Response\ResponseFormat;
 
 class TelegramBot
 {
     protected string $name;
     protected HttpClientInterface $httpClient;
     protected array $config;
-    protected ?User $botInfo = null;
+    // No DTO cache; prefer simple transport
+    protected mixed $botInfo = null;
     protected int $createdAt;
     protected array $stats = [
         'total_calls' => 0,
@@ -38,6 +39,12 @@ class TelegramBot
         'game',
         'update',
     ];
+
+    protected string $returnFormat = ResponseFormat::ARRAY;
+    /**
+     * One-shot format to be applied to the next call only.
+     */
+    protected ?string $oneShotFormat = null;
 
     public function __construct(string $name, HttpClientInterface $httpClient, array $config = [])
     {
@@ -80,17 +87,67 @@ class TelegramBot
         return $this->httpClient->getToken();
     }
 
-    public function getMe(): User
+    public function getMe(): mixed
     {
-        if ($this->botInfo === null) {
-            $response = $this->call('getMe');
-            $this->botInfo = $response->toDTO(User::class);
-        }
-
-        return $this->botInfo;
+        $instance = $this->methods('update');
+        return $this->invokeWithTempFormat($instance, function () use ($instance) {
+            return $instance->getMe();
+        });
     }
 
     public function methods(string $group): BaseMethodGroup
+    {
+        return $this->getGroupInstance($group, true);
+    }
+
+    public function __get(string $name): BaseMethodGroup
+    {
+        return $this->methods($name);
+    }
+
+    /**
+     * Convenience accessor to chat method group for fluent usage.
+     */
+    public function chat(): BaseMethodGroup
+    {
+        return $this->methods('chat');
+    }
+
+    /**
+     * Set preferred return format for method results.
+     */
+    public function as(string $format): static
+    {
+        // Apply as a one-shot format for the next API call
+        $this->oneShotFormat = $format;
+        return $this;
+    }
+
+    public function getReturnFormat(): string
+    {
+        return $this->returnFormat;
+    }
+
+    public function __call(string $method, array $parameters)
+    {
+        foreach ($this->availableGroups as $group) {
+            $instance = $this->getGroupInstance($group, false);
+            if (method_exists($instance, $method)) {
+                if ($this->oneShotFormat !== null) {
+                    $instance->setOneShotReturnFormat($this->oneShotFormat);
+                    $this->oneShotFormat = null;
+                }
+                return $instance->{$method}(...$parameters);
+            }
+        }
+
+        throw new \BadMethodCallException("Method {$method} does not exist");
+    }
+
+    /**
+     * Resolve a method group instance with optional one-shot consumption.
+     */
+    private function getGroupInstance(string $group, bool $consumeOneShot): BaseMethodGroup
     {
         $group = strtolower($group);
 
@@ -100,27 +157,33 @@ class TelegramBot
 
         if (!isset($this->methodGroups[$group])) {
             $class = __NAMESPACE__ . '\\Methods\\' . ucfirst($group) . 'Methods';
-            $this->methodGroups[$group] = new $class($this->httpClient, $this->name);
+            $this->methodGroups[$group] = new $class($this->httpClient, $this->name, $this->returnFormat);
+        }
+
+        if ($consumeOneShot && $this->oneShotFormat !== null) {
+            $this->methodGroups[$group]->setOneShotReturnFormat($this->oneShotFormat);
+            $this->oneShotFormat = null;
         }
 
         return $this->methodGroups[$group];
     }
 
-    public function __get(string $name): BaseMethodGroup
+    /**
+     * Invoke a method on a group, temporarily applying one-shot format if present.
+     */
+    private function invokeWithTempFormat(BaseMethodGroup $instance, callable $fn): mixed
     {
-        return $this->methods($name);
-    }
-
-    public function __call(string $method, array $parameters)
-    {
-        foreach ($this->availableGroups as $group) {
-            $instance = $this->methods($group);
-            if (method_exists($instance, $method)) {
-                return $instance->{$method}(...$parameters);
+        if ($this->oneShotFormat !== null) {
+            $prev = $instance->getReturnFormat();
+            $instance->setReturnFormat($this->oneShotFormat);
+            try {
+                return $fn();
+            } finally {
+                $instance->setReturnFormat($prev);
+                $this->oneShotFormat = null;
             }
         }
-
-        throw new \BadMethodCallException("Method {$method} does not exist");
+        return $fn();
     }
 
     public function call(string $method, array $parameters = []): TelegramResponse

@@ -11,9 +11,7 @@
 |
 */
 
-pest()->extend(XBot\Telegram\Tests\TestCase::class)
-    // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature');
+// Minimal setup: use default PHPUnit test case; no framework bootstrap
 
 /*
 |--------------------------------------------------------------------------

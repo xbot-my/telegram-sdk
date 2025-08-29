@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace XBot\Telegram\Methods;
 
-use XBot\Telegram\Contracts\MethodGroupInterface;
-use XBot\Telegram\Models\DTO\Chat;
-use XBot\Telegram\Models\DTO\User;
-use XBot\Telegram\Models\Response\TelegramResponse;
-
 /**
  * 管理员方法组
  * 
  * 提供聊天管理相关的 API 方法
  */
-class AdminMethods extends BaseMethodGroup implements MethodGroupInterface
+class AdminMethods extends BaseMethodGroup
 {
     /**
      * 获取 HTTP 客户端
@@ -196,29 +191,13 @@ class AdminMethods extends BaseMethodGroup implements MethodGroupInterface
     /**
      * 获取聊天管理员
      */
-    public function getChatAdministrators(int|string $chatId): array
+    public function getChatAdministrators(int|string $chatId): mixed
     {
         $this->validateChatId($chatId);
 
         $parameters = ['chat_id' => $chatId];
-        $response = $this->call('getChatAdministrators', $parameters);
-
-        if (!$response->isOk()) {
-            return [];
-        }
-
-        $administrators = [];
-        $result = $response->getResult();
-
-        if (is_array($result)) {
-            foreach ($result as $admin) {
-                if (is_array($admin)) {
-                    $administrators[] = $admin;
-                }
-            }
-        }
-
-        return $administrators;
+        $response = $this->call('getChatAdministrators', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -229,20 +208,14 @@ class AdminMethods extends BaseMethodGroup implements MethodGroupInterface
         $this->validateChatId($chatId);
 
         $parameters = ['chat_id' => $chatId];
-        $response = $this->call('getChatMemberCount', $parameters);
-
-        if (!$response->isOk()) {
-            return 0;
-        }
-
-        $result = $response->getResult();
-        return is_int($result) ? $result : 0;
+        $response = $this->call('getChatMemberCount', $parameters)->ensureOk();
+        return (int) $response->getResult();
     }
 
     /**
      * 获取聊天成员信息
      */
-    public function getChatMember(int|string $chatId, int $userId): ?array
+    public function getChatMember(int|string $chatId, int $userId): mixed
     {
         $this->validateChatId($chatId);
         $this->validateUserId($userId);
@@ -252,14 +225,8 @@ class AdminMethods extends BaseMethodGroup implements MethodGroupInterface
             'user_id' => $userId,
         ];
 
-        $response = $this->call('getChatMember', $parameters);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response = $this->call('getChatMember', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -286,12 +253,7 @@ class AdminMethods extends BaseMethodGroup implements MethodGroupInterface
         $this->validateChatId($chatId);
 
         $parameters = ['chat_id' => $chatId];
-        $response = $this->call('exportChatInviteLink', $parameters);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
+        $response = $this->call('exportChatInviteLink', $parameters)->ensureOk();
         $result = $response->getResult();
         return is_string($result) ? $result : null;
     }
@@ -299,19 +261,13 @@ class AdminMethods extends BaseMethodGroup implements MethodGroupInterface
     /**
      * 创建聊天邀请链接
      */
-    public function createChatInviteLink(int|string $chatId, array $options = []): ?array
+    public function createChatInviteLink(int|string $chatId, array $options = []): mixed
     {
         $this->validateChatId($chatId);
 
         $parameters = array_merge(['chat_id' => $chatId], $options);
-        $response = $this->call('createChatInviteLink', $parameters);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response = $this->call('createChatInviteLink', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -321,7 +277,7 @@ class AdminMethods extends BaseMethodGroup implements MethodGroupInterface
         int|string $chatId, 
         string $inviteLink, 
         array $options = []
-    ): ?array {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateUrl($inviteLink);
 
@@ -330,20 +286,14 @@ class AdminMethods extends BaseMethodGroup implements MethodGroupInterface
             'invite_link' => $inviteLink,
         ], $options);
 
-        $response = $this->call('editChatInviteLink', $parameters);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response = $this->call('editChatInviteLink', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
      * 撤销聊天邀请链接
      */
-    public function revokeChatInviteLink(int|string $chatId, string $inviteLink): ?array
+    public function revokeChatInviteLink(int|string $chatId, string $inviteLink): mixed
     {
         $this->validateChatId($chatId);
         $this->validateUrl($inviteLink);
@@ -353,14 +303,8 @@ class AdminMethods extends BaseMethodGroup implements MethodGroupInterface
             'invite_link' => $inviteLink,
         ];
 
-        $response = $this->call('revokeChatInviteLink', $parameters);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response = $this->call('revokeChatInviteLink', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**

@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace XBot\Telegram\Methods;
 
-use XBot\Telegram\Contracts\MethodGroupInterface;
-use XBot\Telegram\Models\Response\TelegramResponse;
-
 /**
  * 贴纸方法组
  * 
  * 提供贴纸相关的 API 方法
  */
-class StickerMethods extends BaseMethodGroup implements MethodGroupInterface
+class StickerMethods extends BaseMethodGroup
 {
     /**
      * 获取 HTTP 客户端
@@ -29,7 +26,7 @@ class StickerMethods extends BaseMethodGroup implements MethodGroupInterface
         int|string $chatId, 
         string $sticker, 
         array $options = []
-    ): ?array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -40,44 +37,32 @@ class StickerMethods extends BaseMethodGroup implements MethodGroupInterface
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('sendSticker', $parameters, $files);
-        } else {
-            $response = $this->call('sendSticker', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendSticker', $parameters, $files)
+            : $this->call('sendSticker', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
      * 获取贴纸集合
      */
-    public function getStickerSet(string $name): ?array
+    public function getStickerSet(string $name): mixed
     {
         if (empty($name)) {
             throw new \InvalidArgumentException('Sticker set name cannot be empty');
         }
 
         $parameters = ['name' => $name];
-        $response = $this->call('getStickerSet', $parameters);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response = $this->call('getStickerSet', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
      * 获取自定义表情贴纸
      */
-    public function getCustomEmojiStickers(array $customEmojiIds): ?array
+    public function getCustomEmojiStickers(array $customEmojiIds): mixed
     {
         if (empty($customEmojiIds)) {
             throw new \InvalidArgumentException('Custom emoji IDs cannot be empty');
@@ -91,14 +76,8 @@ class StickerMethods extends BaseMethodGroup implements MethodGroupInterface
             'custom_emoji_ids' => json_encode($customEmojiIds),
         ];
 
-        $response = $this->call('getCustomEmojiStickers', $parameters);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response = $this->call('getCustomEmojiStickers', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -108,7 +87,7 @@ class StickerMethods extends BaseMethodGroup implements MethodGroupInterface
         int $userId, 
         string $sticker, 
         string $stickerFormat
-    ): ?array {
+    ): mixed {
         $this->validateUserId($userId);
 
         if (!in_array($stickerFormat, ['static', 'animated', 'video'])) {
@@ -124,18 +103,12 @@ class StickerMethods extends BaseMethodGroup implements MethodGroupInterface
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('uploadStickerFile', $parameters, $files);
-        } else {
-            $response = $this->call('uploadStickerFile', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('uploadStickerFile', $parameters, $files)
+            : $this->call('uploadStickerFile', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**

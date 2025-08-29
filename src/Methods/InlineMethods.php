@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace XBot\Telegram\Methods;
 
-use XBot\Telegram\Contracts\MethodGroupInterface;
-use XBot\Telegram\Models\Response\TelegramResponse;
-
 /**
  * 内联查询方法组
  * 
  * 提供内联查询和内联键盘相关的 API 方法
  */
-class InlineMethods extends BaseMethodGroup implements MethodGroupInterface
+class InlineMethods extends BaseMethodGroup
 {
     /**
      * 获取 HTTP 客户端
@@ -420,15 +417,9 @@ class InlineMethods extends BaseMethodGroup implements MethodGroupInterface
     /**
      * 获取我的命令
      */
-    public function getMyCommands(array $options = []): ?array
+    public function getMyCommands(array $options = []): mixed
     {
-        $response = $this->call('getMyCommands', $options);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response = $this->call('getMyCommands', $options)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 }
