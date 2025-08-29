@@ -7,8 +7,7 @@
     "ext-json": "*",
     "guzzlehttp/guzzle": "^7.10",
     "guzzlehttp/psr7": "^2.8",
-    "psr/http-message": "^1.0 || ^2.0",
-    "illuminate/contracts": "^11.0||^12.0"
+    "psr/http-message": "^1.0 || ^2.0"
   },
   "require-dev": {
     "larastan/larastan": "^3.0",
@@ -29,8 +28,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "XBot\\Telegram\\Tests\\": "tests/",
-      "Workbench\\App\\": "workbench/app/"
+      "XBot\\Telegram\\Tests\\": "tests/"
     }
   },
   "authors": [
@@ -45,16 +43,7 @@
       "pestphp/pest-plugin": true
     }
   },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "XBot\\Telegram\\Providers\\TelegramServiceProvider"
-      ],
-      "aliases": {
-        "Telegram": "XBot\\Telegram\\Facades\\Telegram"
-      }
-    }
-  },
+  "extra": {},
   "scripts": {
     "test": "vendor/bin/pest -q",
     "phpunit": "vendor/bin/phpunit",

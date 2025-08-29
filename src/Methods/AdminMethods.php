@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 namespace XBot\Telegram\Methods;
-
-use XBot\Telegram\Contracts\MethodGroupInterface;
 use XBot\Telegram\Models\DTO\Chat;
 use XBot\Telegram\Models\DTO\User;
 use XBot\Telegram\Models\Response\TelegramResponse;
@@ -14,7 +12,7 @@ use XBot\Telegram\Models\Response\TelegramResponse;
  * 
  * 提供聊天管理相关的 API 方法
  */
-class AdminMethods extends BaseMethodGroup implements MethodGroupInterface
+class AdminMethods extends BaseMethodGroup
 {
     /**
      * 获取 HTTP 客户端

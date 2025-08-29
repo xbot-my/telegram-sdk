@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 namespace XBot\Telegram\Methods;
-
-use XBot\Telegram\Contracts\MethodGroupInterface;
 use XBot\Telegram\Models\Response\TelegramResponse;
 
 /**
@@ -12,7 +10,7 @@ use XBot\Telegram\Models\Response\TelegramResponse;
  * 
  * 提供文件上传、下载和操作相关的 API 方法
  */
-class FileMethods extends BaseMethodGroup implements MethodGroupInterface
+class FileMethods extends BaseMethodGroup
 {
     /**
      * 获取 HTTP 客户端

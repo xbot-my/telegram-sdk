@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 namespace XBot\Telegram\Methods;
-
-use XBot\Telegram\Contracts\MethodGroupInterface;
 use XBot\Telegram\Models\Response\TelegramResponse;
 
 /**
@@ -12,7 +10,7 @@ use XBot\Telegram\Models\Response\TelegramResponse;
  * 
  * 提供内联查询和内联键盘相关的 API 方法
  */
-class InlineMethods extends BaseMethodGroup implements MethodGroupInterface
+class InlineMethods extends BaseMethodGroup
 {
     /**
      * 获取 HTTP 客户端

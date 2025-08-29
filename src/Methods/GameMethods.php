@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 namespace XBot\Telegram\Methods;
-
-use XBot\Telegram\Contracts\MethodGroupInterface;
 use XBot\Telegram\Models\Response\TelegramResponse;
 
 /**
@@ -12,7 +10,7 @@ use XBot\Telegram\Models\Response\TelegramResponse;
  * 
  * 提供游戏相关的 API 方法
  */
-class GameMethods extends BaseMethodGroup implements MethodGroupInterface
+class GameMethods extends BaseMethodGroup
 {
     /**
      * 获取 HTTP 客户端

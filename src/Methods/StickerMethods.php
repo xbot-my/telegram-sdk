@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace XBot\Telegram\Methods;
 
-use XBot\Telegram\Contracts\MethodGroupInterface;
 use XBot\Telegram\Models\Response\TelegramResponse;
 
 /**
@@ -12,7 +11,7 @@ use XBot\Telegram\Models\Response\TelegramResponse;
  * 
  * 提供贴纸相关的 API 方法
  */
-class StickerMethods extends BaseMethodGroup implements MethodGroupInterface
+class StickerMethods extends BaseMethodGroup
 {
     /**
      * 获取 HTTP 客户端
