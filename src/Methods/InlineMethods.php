@@ -418,15 +418,9 @@ class InlineMethods extends BaseMethodGroup
     /**
      * 获取我的命令
      */
-    public function getMyCommands(array $options = []): ?array
+    public function getMyCommands(array $options = []): mixed
     {
-        $response = $this->call('getMyCommands', $options);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response = $this->call('getMyCommands', $options)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 }

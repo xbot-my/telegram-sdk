@@ -31,7 +31,7 @@ class ChatMethods extends BaseMethodGroup
     /**
      * 获取聊天管理员
      */
-    public function getChatAdministrators(int|string $chatId): array
+    public function getChatAdministrators(int|string $chatId): mixed
     {
         $this->validateChatId($chatId);
 
@@ -39,8 +39,8 @@ class ChatMethods extends BaseMethodGroup
             'chat_id' => $chatId,
         ]);
 
-        $response = $this->call('getChatAdministrators', $parameters);
-        return $response->getResult();
+        $response = $this->call('getChatAdministrators', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -61,7 +61,7 @@ class ChatMethods extends BaseMethodGroup
     /**
      * 获取聊天成员
      */
-    public function getChatMember(int|string $chatId, int $userId): array
+    public function getChatMember(int|string $chatId, int $userId): mixed
     {
         $this->validateChatId($chatId);
         $this->validateUserId($userId);
@@ -71,8 +71,8 @@ class ChatMethods extends BaseMethodGroup
             'user_id' => $userId,
         ]);
 
-        $response = $this->call('getChatMember', $parameters);
-        return $response->getResult();
+        $response = $this->call('getChatMember', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -267,15 +267,15 @@ class ChatMethods extends BaseMethodGroup
     public function createChatInviteLink(
         int|string $chatId,
         array $options = []
-    ): array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = $this->prepareParameters(array_merge([
             'chat_id' => $chatId,
         ], $options));
 
-        $response = $this->call('createChatInviteLink', $parameters);
-        return $response->getResult();
+        $response = $this->call('createChatInviteLink', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -285,7 +285,7 @@ class ChatMethods extends BaseMethodGroup
         int|string $chatId,
         string $inviteLink,
         array $options = []
-    ): array {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateUrl($inviteLink);
 
@@ -294,8 +294,8 @@ class ChatMethods extends BaseMethodGroup
             'invite_link' => $inviteLink,
         ], $options));
 
-        $response = $this->call('editChatInviteLink', $parameters);
-        return $response->getResult();
+        $response = $this->call('editChatInviteLink', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -304,7 +304,7 @@ class ChatMethods extends BaseMethodGroup
     public function revokeChatInviteLink(
         int|string $chatId,
         string $inviteLink
-    ): array {
+    ): mixed {
         $this->validateChatId($chatId);
         $this->validateUrl($inviteLink);
 
@@ -313,8 +313,8 @@ class ChatMethods extends BaseMethodGroup
             'invite_link' => $inviteLink,
         ]);
 
-        $response = $this->call('revokeChatInviteLink', $parameters);
-        return $response->getResult();
+        $response = $this->call('revokeChatInviteLink', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -541,14 +541,14 @@ class ChatMethods extends BaseMethodGroup
     /**
      * 获取聊天菜单按钮
      */
-    public function getChatMenuButton(int|string $chatId = null): array
+    public function getChatMenuButton(int|string $chatId = null): mixed
     {
         $parameters = $this->prepareParameters([
             'chat_id' => $chatId,
         ]);
 
-        $response = $this->call('getChatMenuButton', $parameters);
-        return $response->getResult();
+        $response = $this->call('getChatMenuButton', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -558,7 +558,7 @@ class ChatMethods extends BaseMethodGroup
         int|string $chatId,
         string $name,
         array $options = []
-    ): array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         if (empty($name)) {
@@ -574,8 +574,8 @@ class ChatMethods extends BaseMethodGroup
             'name' => $name,
         ], $options));
 
-        $response = $this->call('createForumTopic', $parameters);
-        return $response->getResult();
+        $response = $this->call('createForumTopic', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**

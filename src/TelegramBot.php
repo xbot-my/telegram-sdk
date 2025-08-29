@@ -7,7 +7,6 @@ namespace XBot\Telegram;
 use XBot\Telegram\Contracts\HttpClientInterface;
 use XBot\Telegram\Exceptions\ConfigurationException;
 use XBot\Telegram\Methods\BaseMethodGroup;
-use XBot\Telegram\Models\DTO\User;
 use XBot\Telegram\Models\Response\TelegramResponse;
 use XBot\Telegram\Models\Response\ResponseFormat;
 
@@ -16,7 +15,8 @@ class TelegramBot
     protected string $name;
     protected HttpClientInterface $httpClient;
     protected array $config;
-    protected ?User $botInfo = null;
+    // No DTO cache; prefer simple transport
+    protected mixed $botInfo = null;
     protected int $createdAt;
     protected array $stats = [
         'total_calls' => 0,
@@ -83,14 +83,10 @@ class TelegramBot
         return $this->httpClient->getToken();
     }
 
-    public function getMe(): User
+    public function getMe(): mixed
     {
-        if ($this->botInfo === null) {
-            $response = $this->call('getMe');
-            $this->botInfo = $response->toDTO(User::class);
-        }
-
-        return $this->botInfo;
+        // Delegate to update->getMe() to honor current return format
+        return $this->methods('update')->getMe();
     }
 
     public function methods(string $group): BaseMethodGroup
