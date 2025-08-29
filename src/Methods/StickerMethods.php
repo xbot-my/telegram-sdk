@@ -28,7 +28,7 @@ class StickerMethods extends BaseMethodGroup
         int|string $chatId, 
         string $sticker, 
         array $options = []
-    ): ?array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -39,44 +39,32 @@ class StickerMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('sendSticker', $parameters, $files);
-        } else {
-            $response = $this->call('sendSticker', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendSticker', $parameters, $files)
+            : $this->call('sendSticker', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
      * 获取贴纸集合
      */
-    public function getStickerSet(string $name): ?array
+    public function getStickerSet(string $name): mixed
     {
         if (empty($name)) {
             throw new \InvalidArgumentException('Sticker set name cannot be empty');
         }
 
         $parameters = ['name' => $name];
-        $response = $this->call('getStickerSet', $parameters);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response = $this->call('getStickerSet', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
      * 获取自定义表情贴纸
      */
-    public function getCustomEmojiStickers(array $customEmojiIds): ?array
+    public function getCustomEmojiStickers(array $customEmojiIds): mixed
     {
         if (empty($customEmojiIds)) {
             throw new \InvalidArgumentException('Custom emoji IDs cannot be empty');
@@ -90,14 +78,8 @@ class StickerMethods extends BaseMethodGroup
             'custom_emoji_ids' => json_encode($customEmojiIds),
         ];
 
-        $response = $this->call('getCustomEmojiStickers', $parameters);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response = $this->call('getCustomEmojiStickers', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -107,7 +89,7 @@ class StickerMethods extends BaseMethodGroup
         int $userId, 
         string $sticker, 
         string $stickerFormat
-    ): ?array {
+    ): mixed {
         $this->validateUserId($userId);
 
         if (!in_array($stickerFormat, ['static', 'animated', 'video'])) {
@@ -123,18 +105,12 @@ class StickerMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('uploadStickerFile', $parameters, $files);
-        } else {
-            $response = $this->call('uploadStickerFile', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('uploadStickerFile', $parameters, $files)
+            : $this->call('uploadStickerFile', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**

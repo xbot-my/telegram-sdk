@@ -27,7 +27,7 @@ class FileMethods extends BaseMethodGroup
         int|string $chatId, 
         string $photo, 
         array $options = []
-    ): ?array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -39,18 +39,12 @@ class FileMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('sendPhoto', $parameters, $files);
-        } else {
-            $response = $this->call('sendPhoto', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendPhoto', $parameters, $files)
+            : $this->call('sendPhoto', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -60,7 +54,7 @@ class FileMethods extends BaseMethodGroup
         int|string $chatId, 
         string $audio, 
         array $options = []
-    ): ?array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -71,18 +65,12 @@ class FileMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('sendAudio', $parameters, $files);
-        } else {
-            $response = $this->call('sendAudio', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendAudio', $parameters, $files)
+            : $this->call('sendAudio', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -92,7 +80,7 @@ class FileMethods extends BaseMethodGroup
         int|string $chatId, 
         string $document, 
         array $options = []
-    ): ?array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -103,18 +91,12 @@ class FileMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('sendDocument', $parameters, $files);
-        } else {
-            $response = $this->call('sendDocument', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendDocument', $parameters, $files)
+            : $this->call('sendDocument', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -124,7 +106,7 @@ class FileMethods extends BaseMethodGroup
         int|string $chatId, 
         string $video, 
         array $options = []
-    ): ?array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -135,18 +117,12 @@ class FileMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('sendVideo', $parameters, $files);
-        } else {
-            $response = $this->call('sendVideo', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendVideo', $parameters, $files)
+            : $this->call('sendVideo', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -156,7 +132,7 @@ class FileMethods extends BaseMethodGroup
         int|string $chatId, 
         string $animation, 
         array $options = []
-    ): ?array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -167,18 +143,12 @@ class FileMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('sendAnimation', $parameters, $files);
-        } else {
-            $response = $this->call('sendAnimation', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendAnimation', $parameters, $files)
+            : $this->call('sendAnimation', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -188,7 +158,7 @@ class FileMethods extends BaseMethodGroup
         int|string $chatId, 
         string $voice, 
         array $options = []
-    ): ?array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -199,18 +169,12 @@ class FileMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('sendVoice', $parameters, $files);
-        } else {
-            $response = $this->call('sendVoice', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendVoice', $parameters, $files)
+            : $this->call('sendVoice', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -220,7 +184,7 @@ class FileMethods extends BaseMethodGroup
         int|string $chatId, 
         string $videoNote, 
         array $options = []
-    ): ?array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         $parameters = array_merge([
@@ -231,18 +195,12 @@ class FileMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
 
-        if (!empty($files)) {
-            $response = $this->upload('sendVideoNote', $parameters, $files);
-        } else {
-            $response = $this->call('sendVideoNote', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendVideoNote', $parameters, $files)
+            : $this->call('sendVideoNote', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
@@ -252,7 +210,7 @@ class FileMethods extends BaseMethodGroup
         int|string $chatId, 
         array $media, 
         array $options = []
-    ): ?array {
+    ): mixed {
         $this->validateChatId($chatId);
 
         if (empty($media)) {
@@ -278,39 +236,26 @@ class FileMethods extends BaseMethodGroup
             }
         }
 
-        if (!empty($files)) {
-            $parameters['media'] = json_encode($media);
-            $response = $this->upload('sendMediaGroup', $parameters, $files);
-        } else {
-            $response = $this->call('sendMediaGroup', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendMediaGroup', array_merge($parameters, ['media' => json_encode($media)]), $files)
+            : $this->call('sendMediaGroup', $parameters);
 
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
      * 获取文件信息
      */
-    public function getFile(string $fileId): ?array
+    public function getFile(string $fileId): mixed
     {
         if (empty($fileId)) {
             throw new \InvalidArgumentException('File ID cannot be empty');
         }
 
         $parameters = ['file_id' => $fileId];
-        $response = $this->call('getFile', $parameters);
-
-        if (!$response->isOk()) {
-            return null;
-        }
-
-        $result = $response->getResult();
-        return is_array($result) ? $result : null;
+        $response = $this->call('getFile', $parameters)->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
