@@ -392,13 +392,12 @@ class MessageMethods extends BaseMethodGroup
         $files = $this->extractFiles($parameters);
         $parameters = $this->prepareParameters($parameters);
         
-        if (!empty($files)) {
-            $response = $this->upload('sendVideo', $parameters, $files);
-        } else {
-            $response = $this->call('sendVideo', $parameters);
-        }
+        $response = !empty($files)
+            ? $this->upload('sendVideo', $parameters, $files)
+            : $this->call('sendVideo', $parameters);
 
-        return $response->toDTO(Message::class);
+        $response->ensureOk();
+        return $this->formatResult($response->getResult());
     }
 
     /**
