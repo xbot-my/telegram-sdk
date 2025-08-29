@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 namespace XBot\Telegram\Methods;
-use XBot\Telegram\Models\Response\TelegramResponse;
 
 /**
  * 内联查询方法组

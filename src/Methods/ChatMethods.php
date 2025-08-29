@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace XBot\Telegram\Methods;
 
-use XBot\Telegram\Models\DTO\Chat;
-
 /**
  * 聊天管理相关的 API 方法
  * 
