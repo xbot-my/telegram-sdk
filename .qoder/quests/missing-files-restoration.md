@@ -7,6 +7,7 @@ telegram-sdk 是一个 PHP 的 Telegram Bot API 封装库，采用分层架构�
 ## 当前架构分析
 
 ### 现有文件结构
+
 ```
 src/
 ├── Console/Commands/           ✅ 完整 (4个命令文件)
@@ -26,6 +27,7 @@ src/
 ### 1. Contracts 接口缺失
 
 **缺失问题**：
+
 - `HttpClientConfig` 类在 `HttpClientInterface.php` 中定义但位置不规范
 - 缺少独立的配置接口文件
 
@@ -37,8 +39,9 @@ src/
 当前 `TelegramBot.php` 包含了大量 API 方法的直接实现，但缺少对应的方法组织结构。现有的 Methods 目录只有基础文件，缺少具体的方法组实现。
 
 **缺失的方法组**：
+
 - `AdminMethods.php` - 群组管理方法
-- `FileMethods.php` - 文件操作方法  
+- `FileMethods.php` - 文件操作方法
 - `GameMethods.php` - 游戏相关方法
 - `InlineMethods.php` - 内联查询方法
 - `StickerMethods.php` - 贴纸相关方法
@@ -48,8 +51,9 @@ src/
 ### 3. Models 模型缺失
 
 **DTO 模型缺失**：
+
 - `Animation.php` - 动画对象
-- `Audio.php` - 音频对象  
+- `Audio.php` - 音频对象
 - `CallbackQuery.php` - 回调查询对象
 - `Contact.php` - 联系人对象
 - `Document.php` - 文档对象
@@ -65,6 +69,7 @@ src/
 - `Dice.php` - 骰子对象
 
 **Response 模型缺失**：
+
 - `PaginatedResponse.php` - 分页响应
 - `FileResponse.php` - 文件响应
 - `ApiResponse.php` - API 响应基类
@@ -72,6 +77,7 @@ src/
 ### 4. HTTP 客户端补充
 
 **缺失组件**：
+
 - `Middleware/` 目录下的中间件实现
 - 速率限制和重试机制的具体实现
 - 文件上传的优化处理
@@ -129,12 +135,14 @@ graph TB
 ### 方法组重构策略
 
 **设计原则**：
+
 - 按功能领域分组（消息、聊天、管理、文件等）
 - 每个方法组继承 `BaseMethodGroup`
 - 提供流式接口和链式调用
 - 统一的参数验证和错误处理
 
 **重构后的调用方式**：
+
 ```php
 // 原始方式（保持兼容）
 $bot->sendMessage($chatId, $text);
@@ -148,6 +156,7 @@ $bot->file()->upload($chatId, $filePath);
 ### 数据传输对象（DTO）扩展
 
 **类型安全增强**：
+
 ```mermaid
 classDiagram
     class BaseDTO {
@@ -207,16 +216,19 @@ classDiagram
 ### 优先级 1（核心功能）
 
 #### Contracts 接口
+
 - `HttpClientConfigInterface.php` - HTTP 客户端配置接口
 - `MethodGroupInterface.php` - 方法组接口
 - `DTOInterface.php` - DTO 基础接口
 
 #### Methods 方法组
+
 - `AdminMethods.php` - 群组管理（踢人、禁言、权限管理）
 - `FileMethods.php` - 文件操作（上传、下载、获取信息）
 - `InlineMethods.php` - 内联查询处理
 
-#### Models/DTO 核心模型  
+#### Models/DTO 核心模型
+
 - `Audio.php` - 音频文件模型
 - `Document.php` - 文档文件模型
 - `Location.php` - 位置信息模型
@@ -227,18 +239,21 @@ classDiagram
 - `InlineQuery.php` - 内联查询模型
 
 #### Models/Response 响应模型
+
 - `PaginatedResponse.php` - 分页响应处理
 - `FileResponse.php` - 文件响应处理
 
 ### 优先级 2（扩展功能）
 
 #### Methods 扩展方法组
+
 - `StickerMethods.php` - 贴纸管理
 - `GameMethods.php` - 游戏功能
 - `PaymentMethods.php` - 支付处理
 - `PassportMethods.php` - 身份验证
 
 #### Models/DTO 扩展模型
+
 - `Animation.php` - GIF 动画模型
 - `Contact.php` - 联系人模型
 - `Sticker.php` - 贴纸模型
@@ -248,6 +263,7 @@ classDiagram
 - `File.php` - 通用文件模型
 
 #### HTTP 中间件
+
 - `Http/Middleware/RequestLogger.php` - 请求日志中间件
 - `Http/Middleware/RetryHandler.php` - 重试处理中间件
 - `Http/Middleware/ResponseCache.php` - 响应缓存中间件
@@ -255,11 +271,13 @@ classDiagram
 ### 优先级 3（高级功能）
 
 #### Utils 工具类
+
 - `Utils/FileHelper.php` - 文件操作工具
 - `Utils/ValidationHelper.php` - 数据验证工具
 - `Utils/FormatHelper.php` - 格式化工具
 
 #### Events 事件系统
+
 - `Events/MessageReceived.php` - 消息接收事件
 - `Events/CallbackReceived.php` - 回调接收事件
 - `Events/InlineQueryReceived.php` - 内联查询事件
@@ -273,8 +291,8 @@ abstract class BaseMethodGroup {
     protected HttpClientInterface $httpClient;
     protected string $botName;
     
-    protected function call(string $method, array $parameters = []): TelegramResponse
-    protected function upload(string $method, array $parameters = [], array $files = []): TelegramResponse
+    protected function call(string $method, array $parameters = []): ServerResponse
+    protected function upload(string $method, array $parameters = [], array $files = []): ServerResponse
     protected function validateRequired(array $parameters, array $required): void
 }
 

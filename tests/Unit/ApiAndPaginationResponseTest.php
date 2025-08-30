@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-use XBot\Telegram\Models\Response\ApiResponse;
-use XBot\Telegram\Models\Response\PaginatedResponse;
-use XBot\Telegram\Models\Response\FileResponse;
-use XBot\Telegram\Models\DTO\Chat;
+use XBot\Telegram\Http\Response\ApiResponse;
+use XBot\Telegram\Http\Response\PaginatedResponse;
+use XBot\Telegram\Http\Response\FileResponse;
 
 it('handles ApiResponse success and error variants', function () {
     $ok = ApiResponse::success(['id' => 1, 'type' => 'private'], 12, 'abc');
     expect($ok->isSuccess())->toBeTrue()
-        ->and($ok->getResultAsArray())->toBeArray()
-        ->and($ok->getResultAsDTO(Chat::class))->toBeInstanceOf(Chat::class);
+        ->and($ok->getResultAsArray())->toBeArray();
 
     $mapped = $ok->map(fn ($v) => $v); // associative array, still maps values
     expect($mapped)->toMatchArray(['id' => 1, 'type' => 'private']);

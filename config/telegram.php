@@ -13,6 +13,7 @@ return [
     |
     */
     'token' => env('TELEGRAM_BOT_TOKEN'),
+    'name'  => env('TELEGRAM_BOT_NAME', 'default'),
 
     /*
     |--------------------------------------------------------------------------
@@ -33,6 +34,11 @@ return [
         'user_agent' => env('TELEGRAM_USER_AGENT', 'XBot-Telegram-SDK/1.0'),
         'max_redirects' => (int) env('TELEGRAM_MAX_REDIRECTS', 5),
         'debug' => (bool) env('TELEGRAM_DEBUG', false),
+        'logging' => [
+            'enabled' => (bool) env('TELEGRAM_LOG_ENABLED', true),
+            'suppress_info' => (bool) env('TELEGRAM_LOG_SUPPRESS_INFO', false),
+            'channel' => env('TELEGRAM_LOG_CHANNEL'),
+        ],
     ],
 
     /*
@@ -77,6 +83,11 @@ return [
         'route_prefix' => env('TELEGRAM_WEBHOOK_ROUTE_PREFIX', 'telegram/webhook'),
         'middleware' => ['api', 'telegram.webhook'],
         'verify_signature' => env('TELEGRAM_WEBHOOK_VERIFY_SIGNATURE', true),
+        'secret_token' => env('TELEGRAM_WEBHOOK_SECRET'),
+        // Optionally register handler class names here; they will be resolved and called per update
+        'handlers' => [
+            // App\Telegram\Handlers\MyHandler::class,
+        ],
         'max_connections' => (int) env('TELEGRAM_WEBHOOK_MAX_CONNECTIONS', 100),
         'allowed_updates' => [
             'message',

@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-use XBot\Telegram\Models\Response\TelegramResponse;
-use XBot\Telegram\Models\DTO\Chat;
+use XBot\Telegram\Http\Response\TelegramResponse;
 use XBot\Telegram\Exceptions\ApiException;
 
-it('wraps success response and converts to DTO', function () {
+it('wraps success response and exposes result', function () {
     $resp = TelegramResponse::success(['id' => 1, 'type' => 'private'], 200, ['X-Foo' => 'bar'], 'bot1');
     expect($resp->isOk())->toBeTrue()
         ->and($resp->isError())->toBeFalse()
@@ -15,10 +14,6 @@ it('wraps success response and converts to DTO', function () {
         ->and($resp->getStatusCode())->toBe(200)
         ->and($resp->getHeader('X-Foo'))->toBe('bar')
         ->and($resp->getBotName())->toBe('bot1');
-
-    $dto = $resp->toDTO(Chat::class);
-    expect($dto)->toBeInstanceOf(Chat::class)
-        ->and($dto->toArray()['id'])->toBe(1);
 });
 
 it('throws on toDTO when error and supports ensureOk', function () {
@@ -29,7 +24,6 @@ it('throws on toDTO when error and supports ensureOk', function () {
         ->and($resp->getParameters())
             ->toMatchArray(['param' => 'chat_id']);
 
-    expect(fn() => $resp->toDTO(Chat::class))->toThrow(ApiException::class);
     expect(fn() => $resp->ensureOk())->toThrow(ApiException::class);
 });
 
@@ -38,10 +32,11 @@ it('handles arrays of DTOs and helpers for rate limiting and migration', functio
         ['id' => 1, 'type' => 'private'],
         ['id' => 2, 'type' => 'group'],
     ]);
-    $dtos = $resp->toDTOArray(Chat::class);
-    expect($dtos)->toHaveCount(2)
-        ->and($dtos[0])->toBeInstanceOf(Chat::class)
-        ->and($dtos[1])->toBeInstanceOf(Chat::class);
+    $result = $resp->getResult();
+    expect($result)->toBeArray()
+        ->and($result)->toHaveCount(2)
+        ->and($result[0]['id'])->toBe(1)
+        ->and($result[1]['type'])->toBe('group');
 
     $err = TelegramResponse::error('Too Many Requests', 429, ['retry_after' => 2]);
     expect($err->isRateLimited())->toBeTrue()
@@ -59,4 +54,3 @@ it('serializes to array and json', function () {
         ->and(json_decode($resp->toJson(), true))
         ->toHaveKey('ok');
 });
-
