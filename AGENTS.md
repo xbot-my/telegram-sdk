@@ -3,12 +3,12 @@
 ## Project Structure & Module Organization
 - `src/`: SDK source code
   - `Console/`: CLI commands (e.g., webhook, health, stats)
-  - `Contracts/`: Interfaces and DTO contracts
+  - `Contracts/`: Interfaces (HTTP client abstractions)
   - `Exceptions/`: Domain exceptions
   - `Facades/`, `Providers/`: Laravel integration (service provider, facade)
   - `Http/`: HTTP client abstractions and Guzzle implementation
-  - `Methods/`: Grouped Telegram API method sets
-  - `Models/`: DTOs and response models
+  - `API/`: Telegram Bot API endpoints (semantic, one per method)
+  - `Models/`: Response models (no DTOs)
   - `Utils/`: Internal helpers
 - `tests/`: Pest tests (`Unit/`, `Feature/`), bootstrap in `tests/Pest.php`
 - `config/telegram.php`: Publishable Laravel config
@@ -34,7 +34,7 @@
 - Location: place unit tests in `tests/Unit`, integration/behavior in `tests/Feature`
 - Naming: `FooBarTest.php`; use `describe()/it()` with clear behavior-oriented names
 - Run locally: `vendor/bin/pest --coverage` (requires Xdebug) when validating changes
-- New features must include tests; cover error paths and DTO serialization
+- New features must include tests; cover error paths and Transformer formatting
 
 ## Commit & Pull Request Guidelines
 - Commit style: Prefer Conventional Commits, e.g. `feat: add reply keyboard builder`,
@@ -47,4 +47,3 @@
 - Never commit tokens or secrets; use `.env` and `config/telegram.php` bindings
 - Set and rotate webhook secrets; avoid logging sensitive payloads
 - Validate bot configuration via `BotManager` and prefer least-privilege timeouts/rate limits
-

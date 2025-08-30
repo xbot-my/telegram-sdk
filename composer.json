@@ -44,7 +44,13 @@
       "phpstan/extension-installer": true
     }
   },
-  "extra": {},
+  "extra": {
+    "laravel": {
+      "providers": [
+        "XBot\\Telegram\\Providers\\TelegramServiceProvider"
+      ]
+    }
+  },
   "scripts": {
     "test": "vendor/bin/pest -q",
     "phpunit": "vendor/bin/phpunit",

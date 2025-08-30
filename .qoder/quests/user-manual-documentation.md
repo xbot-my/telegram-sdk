@@ -7,7 +7,7 @@
 ## 技术栈
 
 - **文档框架**: Docsify
-- **主题**: docsify-themeable 
+- **主题**: docsify-themeable
 - **托管平台**: GitHub Pages
 - **构建工具**: GitHub Actions
 - **搜索功能**: docsify-search
@@ -673,17 +673,17 @@ class TelegramWebhookController extends Controller
 ### GitHub Pages 设置
 
 1. **启用 GitHub Pages**
-   - 进入仓库 Settings
-   - 找到 Pages 设置
-   - Source 选择 "Deploy from a branch"
-   - Branch 选择 "gh-pages"
+    - 进入仓库 Settings
+    - 找到 Pages 设置
+    - Source 选择 "Deploy from a branch"
+    - Branch 选择 "gh-pages"
 
 2. **自定义域名 (可选)**
-   - 添加 CNAME 文件
-   - 配置 DNS 记录
+    - 添加 CNAME 文件
+    - 配置 DNS 记录
 
 3. **HTTPS 强制**
-   - 启用 "Enforce HTTPS" 选项
+    - 启用 "Enforce HTTPS" 选项
 
 ### CDN 优化
 
@@ -705,31 +705,31 @@ class TelegramWebhookController extends Controller
 ### 内容维护
 
 1. **定期同步**
-   - 与代码库保持同步
-   - 及时更新 API 变更
-   - 添加新功能文档
+    - 与代码库保持同步
+    - 及时更新 API 变更
+    - 添加新功能文档
 
 2. **版本管理**
-   - 使用 Git 标签管理版本
-   - 维护版本更新日志
-   - 支持多版本文档
+    - 使用 Git 标签管理版本
+    - 维护版本更新日志
+    - 支持多版本文档
 
 3. **质量控制**
-   - 代码示例测试
-   - 链接有效性检查
-   - 文档准确性验证
+    - 代码示例测试
+    - 链接有效性检查
+    - 文档准确性验证
 
 ### 用户反馈
 
 1. **反馈渠道**
-   - GitHub Issues
-   - 文档评论系统
-   - 社区讨论
+    - GitHub Issues
+    - 文档评论系统
+    - 社区讨论
 
 2. **改进机制**
-   - 定期收集反馈
-   - 优化用户体验
-   - 持续改进内容
+    - 定期收集反馈
+    - 优化用户体验
+    - 持续改进内容
 
 ## SEO 优化
 

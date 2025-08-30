@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+namespace XBot\Telegram\API;
+
+final class GetMyStarBalance extends BaseEndpoint
+{
+    public function __invoke(): \XBot\Telegram\Http\Response\Transformer
+    {
+        $response = $this->call('getMyStarBalance')->ensureOk();
+        return $this->formatResult($response->getResult());
+    }
+}
+

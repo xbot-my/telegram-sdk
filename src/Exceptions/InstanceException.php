@@ -2,6 +2,8 @@
 
 namespace XBot\Telegram\Exceptions;
 
+use Throwable;
+
 /**
  * 实例管理异常
  *

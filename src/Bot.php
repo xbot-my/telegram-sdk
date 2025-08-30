@@ -4,42 +4,22 @@ declare(strict_types=1);
 
 namespace XBot\Telegram;
 
-use XBot\Telegram\Http\GuzzleHttpClient;
-use XBot\Telegram\Http\HttpClientConfig;
+use XBot\Telegram\Http\Client\Config as ClientConfig;
 
-/**
- * Bot: minimal entrypoint for common operations.
- *
- * Example:
- * Bot::init($config);
- * Bot::to(123456)->html()->message('<b>Hello</b>');
- * Bot::via('marketing')->to(123456)->message('Hi');
- */
-class Bot
+class Bot extends Telegram
 {
-
     /**
      * Create a simple SDK instance by token.
-     *
-     * This bypasses BotManager and returns a standalone TelegramBot
-     * configured with sane defaults. Ideal for single-bot, minimal usage.
      */
-    public static function token(string $token): TelegramBot
+    public static function token(string $token): self
     {
-        $name = 'default';
-        $config = HttpClientConfig::fromArray([
-            'token' => $token,
-        ], $name);
-
-        $client = new GuzzleHttpClient($config);
-
-        return new TelegramBot($name, $client, [
-            'token_validation' => [
-                'enabled' => true,
-                'pattern' => '/^\d+:[a-zA-Z0-9_-]{32,}$/',
-            ],
-        ]);
+        return new self(static::client($token), ['name' => uniqid()]);
     }
 
-    // Intentionally minimal. No BotManager, facades, or chain builders.
+    public static function client(string $token): Http\Client\GuzzleHttpClient
+    {
+        return new Http\Client\GuzzleHttpClient(
+            config: ClientConfig::fromArray(['token' => $token]),
+        );
+    }
 }
