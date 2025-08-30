@@ -1,0 +1,99 @@
+<!--
+  XBot Telegram SDK 文档主页
+
+  这是一个使用 docsify 构建的静态文档站点。它包含亮/暗主题切换、搜索、分页、
+  图片缩放和代码复制等常用插件，并在每个页面顶部和底部添加了“在 GitHub 上编辑此页”的链接。
+
+  要预览本地文档，请在项目根目录执行：
+    npx docsify serve docs -p 3000
+  或者在 package.json 中添加脚本：
+    "docs:dev": "docsify serve docs -p 3000"
+
+  更多配置项请参考 docsify 官方文档：https://docsify.js.org/
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XBot Telegram SDK</title>
+  <meta name="description" content="XBot Telegram SDK 文档站" />
+
+  <!-- 基础主题样式 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css" />
+  <!-- 亮/暗主题切换样式 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css" />
+
+  <!-- 设置全局主题色，可在此自定义色调 -->
+  <style>
+    :root { --theme-color: #229ED9; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    // docsify 配置对象
+    window.$docsify = {
+      name: 'XBot Telegram SDK',
+      // 文档仓库地址，用于右上角仓库图标以及“编辑此页”链接
+      repo: 'https://github.com/xbot-my/telegram-sdk',
+      loadSidebar: true,
+      subMaxLevel: 2,
+      loadNavbar: true,
+      coverpage: false,
+      relativePath: true,
+      themeColor: '#229ED9',
+      // 内置搜索配置
+      search: {
+        noData: '没有结果',
+        paths: 'auto',
+        placeholder: '搜索文档...'
+      },
+      // 分页导航文字，可跨章节翻页
+      pagination: {
+        previousText: '上一页',
+        nextText: '下一页',
+        crossChapter: true
+      },
+      // 亮暗主题配置
+      darklightTheme: {
+        defaultTheme: 'light',
+        siteFont: 'system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell',
+        codeFontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+        dark: { accent: '#229ED9' },
+        light: { accent: '#229ED9' }
+      },
+      // 插件扩展：在每个页面首尾插入“编辑此页”链接
+      plugins: [
+        function editOnGitHub(hook, vm) {
+          hook.beforeEach(function (html) {
+            var url = 'https://github.com/xbot-my/telegram-sdk/blob/main/docs/' + vm.route.file;
+            var edit = '[:memo: 在 GitHub 上编辑此页](' + url + ')\n';
+            return edit + '\n' + html + '\n\n----\n' + edit;
+          });
+        }
+      ]
+    };
+  </script>
+
+  <!-- docsify 核心脚本 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
+  <!-- 搜索插件 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <!-- 图片缩放插件 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+  <!-- 代码复制插件 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+  <!-- Emoji 插件 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/emoji.min.js"></script>
+  <!-- 分页插件 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+  <!-- 侧边栏折叠插件 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
+  <!-- Tab 插件，用于多实现示例 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+  <!-- 亮暗主题脚本，必须放在最后 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/index.min.js"></script>
+</body>
+</html>
