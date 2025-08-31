@@ -4,10 +4,10 @@
  侧边栏按照章节划分，方便用户快速定位需要的内容。
 -->
 - 入门
-  - [简介](README.md)
-  - [快速开始](/guide/quickstart.md)
+  - [简介](README)
+  - [快速开始](quickstart)
 - 集成
-  - [Laravel 集成](/guide/laravel.md)
+  - [Laravel 集成](guide/laravel)
   - [Webhook 与更新处理](/guide/webhook.md)
   - [命令路由](/guide/laravel.md#命令路由)
 - 进阶
