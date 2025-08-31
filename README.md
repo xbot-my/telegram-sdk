@@ -1,8 +1,8 @@
----
-
 # Telegram Bot PHP SDK
 
 一个易于使用的 PHP Telegram Bot API SDK，提供高性能客户端、语义化端点和完善的异常处理机制，并支持 Laravel 集成。
+
+---
 
 ## 特性
 
@@ -80,9 +80,7 @@ $bot->sendMessage($chatId, 'Hello', ['direct_messages_topic_id' => 1234]);
 
 * 环境变量控制：
 
-  * `TELEGRAM_LOG_ENABLED`
-  * `TELEGRAM_LOG_SUPPRESS_INFO`
-  * `TELEGRAM_LOG_CHANNEL`
+    * `TELEGRAM_LOG_ENABLED`
+    * `TELEGRAM_LOG_SUPPRESS_INFO`
+    * `TELEGRAM_LOG_CHANNEL`
 * 事件：`telegram.request`、`telegram.response`、`telegram.retry` 等
-
----
