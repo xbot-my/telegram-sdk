@@ -14,12 +14,9 @@ abstract class Telegram
 {
     protected Client $client;
 
-    protected int $start_at;
-
-    protected string $name = 'default';
-
-
-    protected array $stats = [
+    protected int    $start_at;
+    protected string $name  = 'default';
+    protected array  $stats = [
         'total_calls'      => 0,
         'successful_calls' => 0,
         'failed_calls'     => 0,
@@ -29,13 +26,14 @@ abstract class Telegram
 
     // Endpoint cache
     protected array $endpoints = [];
-    protected array $config       = [];
+    protected array $configs   = [];
 
-    public function __construct(Client $client, array $config = [])
+    protected static string $token = '';
+
+    public function __construct(Client $client, array $configs = [])
     {
         $this->start_at = time();
-        $this->config = $config;
-        $this->name = $this->config('name');
+        $this->configs = $configs;
         $this->client = $client;
 
         try {
@@ -46,15 +44,24 @@ abstract class Telegram
         }
     }
 
+    public function name(string|null $name = null): string|static
+    {
+        if (empty($name)) {
+            return $this->name;
+        }
+
+        $this->name = $name;
+
+        return $this;
+    }
+
+    abstract static function token(string $token);
+
     /**
      * @throws ConfigurationException
      */
     protected function validateConfiguration(): void
     {
-        if (empty($this->name)) {
-            throw ConfigurationException::invalid('name', $this->name, 'Bot name cannot be empty');
-        }
-
         $token = $this->client->getToken();
         if (empty($token)) {
             throw ConfigurationException::missingBotToken($this->name);
@@ -83,6 +90,7 @@ abstract class Telegram
     public function __call(string $method, array $parameters)
     {
         $endpoint = $this->endpoint($method);
+
         return $endpoint(...$parameters);
     }
 
@@ -100,6 +108,7 @@ abstract class Telegram
         if (!isset($this->endpoints[$class])) {
             $this->endpoints[$class] = new $class($this->client, $this->name);
         }
+
         return $this->endpoints[$class];
     }
 
@@ -113,6 +122,7 @@ abstract class Telegram
         $spaced = str_replace('_', ' ', (string)$spaced);
         $parts = preg_split('/\s+/', trim((string)$spaced)) ?: [];
         $parts = array_map(static fn($p) => ucfirst(strtolower((string)$p)), $parts);
+
         return implode('', $parts);
     }
 
@@ -152,6 +162,7 @@ abstract class Telegram
         $response = $this->call('getFile', ['file_id' => $fileId])->ensureOk();
         $data = $response->getResult();
         $path = is_array($data) ? ($data['file_path'] ?? '') : '';
+
         return rtrim('https://api.telegram.org/file/bot' . $this->getToken(), '/') . '/' . ltrim((string)$path, '/');
     }
 
@@ -185,17 +196,17 @@ abstract class Telegram
     public function config(string|array|null $key = null, $value = null)
     {
         if (empty($key) && empty($value)) {
-            return $this->config;
+            return $this->configs;
         }
 
         if ($key && empty($value)) {
-            return Arr::get($this->config, $key);
+            return Arr::get($this->configs, $key);
         }
 
         if ($key && $value) {
-            Arr::set($this->config, $key, $value);
+            Arr::set($this->configs, $key, $value);
         } else {
-            $this->config = $key;
+            $this->configs = $key;
         }
 
         return $this;

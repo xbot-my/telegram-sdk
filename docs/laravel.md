@@ -1,35 +1,48 @@
 # Laravel 集成
 
-XBot Telegram SDK 为 Laravel 应用提供了开箱即用的集成支持，包含 ServiceProvider、配置文件、路由和中间件。以下内容基于 [项目 README](https://github.com/xbot-my/telegram-sdk#laravel-集成)。
+#### XBot Telegram SDK 为 Laravel 应用提供了开箱即用的集成支持，包含 ServiceProvider、配置文件、路由和中间件。
+
+---
 
 ## 安装与发布配置
 
-安装 SDK 后，你可以使用 Artisan 命令发布配置文件：
+* composer 安装命令.
 
 ```bash
 composer require xbot-my/telegram-sdk
+````
 
-php artisan vendor:publish \
-    --provider="XBot\Telegram\Providers\TelegramServiceProvider"
+* 发布配置文件：
+
+```bash
+php artisan vendor:publish --provider="XBot\Telegram\Providers\TelegramServiceProvider"
 ```
 
 上述命令会在 `config/telegram.php` 中生成默认配置，并注册 ServiceProvider。这段指南来自项目文档中的安装部分【736136284671642†L17-L33】。
 
 ## Webhook 路由与中间件
 
-ServiceProvider 会自动注册一个 POST 路由，例如 `telegram/webhook`，并应用 `api` 与 `telegram.webhook` 中间件。中间件会校验请求头 `X-Telegram-Bot-Api-Secret-Token` 是否与环境变量中的 `TELEGRAM_WEBHOOK_SECRET` 一致【736136284671642†L56-L73】。你可以通过以下步骤启用 Webhook：
+> ServiceProvider 会自动注册一个 POST 路由，
+> 例如 `telegram/webhook`，并应用 `api` 与 `telegram.webhook` 中间件。
+> 中间件会校验请求头 `X-Telegram-Bot-Api-Secret-Token` 是否与环境变量中的 `TELEGRAM_WEBHOOK_SECRET` 一致。
+> 你可以通过以下步骤启用 Webhook：
 
-1. 在 `.env` 文件中设置密钥：
-   ```
-   TELEGRAM_WEBHOOK_SECRET=your-secret-token
-   ```
-2. 可选：自定义路由前缀，例如 `TELEGRAM_WEBHOOK_ROUTE_PREFIX=telegram/webhook`。
-3. 使用 Bot 实例设置 Webhook：
-   ```php
+* `.env` 文件中设置：
+
+```dotenv
+# webhook 密钥
+TELEGRAM_WEBHOOK_SECRET=your-secret-token
+# 自定义路由前缀
+TELEGRAM_WEBHOOK_ROUTE_PREFIX=telegram/webhook
+```
+
+* 使用 Bot 实例设置 Webhook：
+
+ ```php
    $bot->setWebhook('https://yourapp.com/telegram/webhook', [
-       'secret_token' => env('TELEGRAM_WEBHOOK_SECRET'),
+       'secret_token' => config('telegram.webhook.secret_token'),
    ]);
-   ```
+```
 
 通过上述配置，Telegram 将把收到的更新推送到你的应用，SDK 会自动解析并分发更新对象。
 
@@ -104,7 +117,7 @@ class MyCommands extends CommandRouter
 ],
 ```
 
-命令处理器会自动注入 `XBot\Telegram\Bot` 实例，因此你可以直接调用 `$this->bot()` 或 `$this->sendMessage()` 等方法发送回复【736136284671642†L120-L151】。
+命令处理器会自动注入 `XBot\Telegram\Bot` 实例，因此你可以直接调用 `$this->bot()` 或 `$this->sendMessage()` 等方法发送回复。
 
 ## 小结
 

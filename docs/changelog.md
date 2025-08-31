@@ -2,6 +2,8 @@
 
 此页面汇总了 XBot Telegram SDK 的主要版本变更。日期均使用 **Asia/Kuala_Lumpur (UTC+8)** 时区。
 
+---
+
 ## v1.0.0 — 2025‑08‑28
 
 * 🎉 发布首个稳定版本，覆盖 Telegram Bot API 9.2 的全部方法。

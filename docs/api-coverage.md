@@ -5,14 +5,14 @@
 ## 映射规则
 
 * SDK 类放在命名空间 `XBot\Telegram\API` 下。
-* 类名使用 StudlyCase 格式，去掉下划线，例如 `GetMe` 对应 `getMe`【247764572816424†L4-L11】。
-* 在 Bot 实例上同时提供蛇形别名，例如 `$bot->get_webhook_info()` 等【247764572816424†L16-L23】。
+* 类名使用 StudlyCase 格式，去掉下划线，例如 `GetMe` 对应 `getMe`。
 
 ## 实现的端点
 
-以下表格列出了官方方法与 SDK 类的对应关系。若需比较最新 Bot API 文档，请访问 [Telegram 官方文档](https://core.telegram.org/bots/api#available-methods)。此列表改编自项目文档【247764572816424†L17-L139】。
+> 以下表格列出了官方方法与 SDK 类的对应关系。
+> **[Telegram 官方文档](https://core.telegram.org/bots/api#available-methods)。**
 
-| Bot API 方法                        | SDK 类                             |
+| Telegram Bot API                  | XBot\Telegram\API                 |
 |-----------------------------------|-----------------------------------|
 | addStickerToSet                   | AddStickerToSet                   |
 | answerCallbackQuery               | AnswerCallbackQuery               |
@@ -138,4 +138,6 @@
 | unpinChatMessage                  | UnpinChatMessage                  |
 | uploadStickerFile                 | UploadStickerFile                 |
 
-> **状态说明：** 以上列出的所有方法在 SDK 的 `src/API` 目录中均已实现【247764572816424†L143-L147】。如果新的官方方法未在此列表中，请在仓库中创建相应类即可获得支持。
+> **状态说明：**
+> 以上列出的所有方法在 SDK 的 `src/API` 目录中均已实现。
+> 如果新的官方方法未在此列表中，请在仓库中创建相应类即可获得支持。

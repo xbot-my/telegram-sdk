@@ -15,7 +15,7 @@ use Illuminate\Contracts\Support\Responsable;
  *
  * 包装 Telegram API 的响应数据
  */
-class ServerResponse implements Arrayable, Jsonable, Responsable
+class ServerResponse implements Arrayable, Jsonable
 {
     /**
      * 响应是否成功
@@ -63,18 +63,18 @@ class ServerResponse implements Arrayable, Jsonable, Responsable
     protected ?string $botName = null;
 
     public function __construct(
-        array   $responseData,
+        array   $response,
         int     $statusCode = 200,
         array   $headers = [],
         ?string $botName = null
     )
     {
-        $this->rawResponse = $responseData;
+        $this->rawResponse = $response;
         $this->statusCode = $statusCode;
         $this->headers = $headers;
         $this->botName = $botName;
 
-        $this->parseResponse($responseData);
+        $this->parseResponse($response);
     }
 
     /**
@@ -358,8 +358,5 @@ class ServerResponse implements Arrayable, Jsonable, Responsable
         ], $statusCode, $headers, $botName);
     }
 
-    public function toResponse($request)
-    {
-        // TODO: Implement toResponse() method.
-    }
+
 }

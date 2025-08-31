@@ -9,7 +9,7 @@ final class Transformer
     /**
      * @var mixed
      */
-    private $data;
+    private mixed $data;
 
     public function __construct(mixed $data)
     {
@@ -29,7 +29,7 @@ final class Transformer
      */
     public function toArray(): array
     {
-        return is_array($this->data) ? $this->data : (array) $this->data;
+        return is_array($this->data) ? $this->data : (array)$this->data;
     }
 
     /**

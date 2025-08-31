@@ -2,20 +2,22 @@
 
 Telegram Bot API 支持两种更新获取方式：轮询 (`getUpdates`) 和 Webhook 推送。XBot Telegram SDK 推荐使用 Webhook，因为它能减少延迟并节省资源。本节介绍如何配置 Webhook、编写更新处理器以及如何利用命令路由。
 
+---
+
 ## 配置 Webhook
 
 要启用 Webhook，需要先在 Telegram 服务器上设置回调地址，并提供一个密钥用于验证来源。SDK 的 `setWebhook()` 方法接受回调 URL 和可选参数：
 
 ```php
 $bot->setWebhook('https://yourapp.com/telegram/webhook', [
-    'secret_token' => env('TELEGRAM_WEBHOOK_SECRET'),
+    'secret_token' => config('telegram.webhook.secret_token'),
 ]);
 ```
 
-对应的密钥需要在你的应用环境中设置：
+#### 对应的密钥需要在你的应用环境中设置：
 
-```ini
-TELEGRAM_WEBHOOK_SECRET = your-secret-token
+```dotenv
+TELEGRAM_WEBHOOK_SECRET=your-secret-token
 ```
 
 当 Telegram 推送更新时，中间件 `telegram.webhook` 会校验请求头 `X-Telegram-Bot-Api-Secret-Token` 是否与密钥一致【736136284671642†L56-L73】。
@@ -36,23 +38,25 @@ BaseUpdateHandler 会根据更新中的键名调用对应方法，例如：
 | 回调查询 | `onCallbackQuery(array $update)` | 点击按钮回调       |
 | 内联查询 | `onInlineQuery(array $update)`   | 用户向机器人发起内联查询 |
 
-你也可以覆写 `onUpdate(array $update)` 作为兜底处理【736136284671642†L75-L100】。以下是一个简单的 Welcome 处理器：
+你也可以覆写 `onUpdate(array $update)` 作为兜底处理。以下是一个简单的 Welcome 处理器：
 
 ```php
 use XBot\Telegram\Handlers\BaseUpdateHandler;
 
 class WelcomeHandler extends BaseUpdateHandler
 {
-    protected function onMessage(array $u): void
+    protected function onMessage(array $message): void
     {
-        if ($this->text($u) === '/start') {
-            $this->replyText($u, 'Hello, world!');
+        if ($this->text($message) === '/start') {
+            $this->replyText($message, 'Hello, world!');
         }
     }
 }
 ```
 
 在 Laravel 中，处理器通过配置文件注册；在非 Laravel 项目中，你可以在接收更新的控制器中实例化处理器并调用其 `handle(array $update)` 方法。
+
+---
 
 ## 命令路由
 

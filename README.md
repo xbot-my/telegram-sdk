@@ -6,12 +6,10 @@
 
 ## 特性
 
-* 基于 Guzzle 的高性能 HTTP 客户端
-* 语义化端点，避免繁重 DTO
-* 完整的异常与重试机制
-* 请求统计与监控
-* 开箱即用的 Laravel 集成
-* 链式调用与统一响应转换
+* 开箱即用
+* 异常捕获
+* 链式调用
+* 响应转换
 
 ## 安装
 
@@ -19,7 +17,7 @@
 composer require xbot-my/telegram-sdk
 ```
 
-### Laravel 集成
+### Laravel
 
 ```bash
 php artisan vendor:publish --provider="XBot\\Telegram\\Providers\\TelegramServiceProvider"
@@ -66,7 +64,7 @@ $bot->refundStarPayment($userId, $chargeId);
 $bot->readBusinessMessage($chatId, $messageId);
 ```
 
-## Bot API 9.2 新参数
+## Telegram Bot API 9.2 新参数
 
 * `direct_messages_topic_id`：发送至频道话题
 * `suggested_post_parameters`：建议帖子
