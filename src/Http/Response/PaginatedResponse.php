@@ -32,7 +32,7 @@ class PaginatedResponse extends ServerResponse
     protected bool $hasMore = false;
 
     public function __construct(
-        array   $responseData,
+        array   $response,
         int     $page = 1,
         int     $perPage = 100,
         int     $offset = 0,
@@ -42,7 +42,7 @@ class PaginatedResponse extends ServerResponse
         ?string $botName = null
     )
     {
-        parent::__construct($responseData, $statusCode, $headers, $botName);
+        parent::__construct($response, $statusCode, $headers, $botName);
 
         $this->page = $page;
         $this->perPage = $perPage;

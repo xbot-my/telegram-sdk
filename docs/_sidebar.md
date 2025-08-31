@@ -3,21 +3,22 @@
 
  侧边栏按照章节划分，方便用户快速定位需要的内容。
 -->
+
 - 入门
-  - [简介](README.md)
-  - [快速开始](guide/quickstart.md)
+    - [简介](README.md)
+    - [快速开始](quickstart.md)
 - 集成
-  - [Laravel 集成](guide/laravel.md)
-  - [Webhook 与更新处理](guide/webhook.md)
-  - [命令路由](guide/laravel.md#命令路由)
+    - [Laravel 集成](laravel.md)
+    - [Webhook 与更新处理](webhook.md)
+    - [命令路由](laravel.md#命令路由)
 - 进阶
-  - [选项透传](guide/options.md)
-  - [日志配置](guide/logging.md)
-- 场景/Recipes
-  - [Stars](recipes/stars.md)
-  - [Business](recipes/business.md)
-  - [Chat Boosts](recipes/boosts.md)
+    - [选项透传](options.md)
+    - [日志配置](logging.md)
+- 场景
+    - [Stars](stars.md)
+    - [Business](business.md)
+    - [Chat Boosts](boosts.md)
 - 参考
-  - [端点说明](reference/endpoints.md)
-  - [API 覆盖](reference/api_coverage.md)
-  - [更新日志](reference/changelog.md)
+    - [Endpoint](endpoints.md)
+    - [Coverage](api-coverage.md)
+- [Changelog](changelog.md)

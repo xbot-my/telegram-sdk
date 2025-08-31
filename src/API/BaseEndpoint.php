@@ -10,7 +10,7 @@ use XBot\Telegram\Http\Response\TelegramResponse;
 abstract class BaseEndpoint
 {
     protected ClientContract $httpClient;
-    protected string $botName;
+    protected string         $botName;
 
     public function __construct(ClientContract $httpClient, string $botName)
     {
@@ -18,7 +18,7 @@ abstract class BaseEndpoint
         $this->botName = $botName;
     }
 
-    abstract public function __invoke(...$args): mixed;
+    abstract public function __invoke(...$args);
 
     protected function call(string $method, array $parameters = []): TelegramResponse
     {
@@ -50,6 +50,7 @@ abstract class BaseEndpoint
                 $prepared[$key] = $value;
             }
         }
+
         return $prepared;
     }
 
@@ -57,6 +58,7 @@ abstract class BaseEndpoint
     {
         $files = [];
         $this->walkFiles($parameters, $files);
+
         return $files;
     }
 
@@ -84,6 +86,7 @@ abstract class BaseEndpoint
         if (filter_var($value, FILTER_VALIDATE_URL) || preg_match('/^[A-Za-z0-9_-]+$/', $value)) {
             return false;
         }
+
         return false;
     }
 

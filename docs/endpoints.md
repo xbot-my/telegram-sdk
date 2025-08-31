@@ -1,6 +1,6 @@
 # 端点说明
 
-本节简要介绍 SDK 如何映射 Telegram Bot API 的方法，以及如何处理返回值。完整的端点列表请参见 [API 覆盖](api_coverage.md)。
+本节简要介绍 SDK 如何映射 Telegram Bot API 的方法，以及如何处理返回值。完整的端点列表请参见 [API 覆盖](api-coverage.md)。
 
 ## 方法与类映射
 

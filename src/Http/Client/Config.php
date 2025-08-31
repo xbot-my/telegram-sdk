@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace XBot\Telegram\Http\Client;
 
+use Illuminate\Support\Str;
 use XBot\Telegram\Contracts\Http\Client\Config as ConfigContract;
 
 /**
@@ -137,9 +138,9 @@ class Config implements ConfigContract
         ], $tokenValidation);
 
         $this->logging = array_merge([
-            'enabled' => true,
+            'enabled'       => true,
             'suppress_info' => false,
-            'channel' => null,
+            'channel'       => null,
         ], $logging);
     }
 
@@ -357,7 +358,7 @@ class Config implements ConfigContract
             'middleware'       => $this->middleware,
             'bot_name'         => $this->botName,
             'token_validation' => $this->tokenValidation,
-            'logging'         => $this->logging,
+            'logging'          => $this->logging,
             'api_url'          => $this->getApiUrl(),
             'file_api_url'     => $this->getFileApiUrl(),
         ];
@@ -388,6 +389,7 @@ class Config implements ConfigContract
     public function getLoggingChannel(): ?string
     {
         $c = $this->logging['channel'] ?? null;
+
         return $c ? (string)$c : null;
     }
 
@@ -400,6 +402,6 @@ class Config implements ConfigContract
         // 隐藏敏感信息
         $config['token'] = substr($config['token'], 0, 10) . '...';
 
-        return json_encode($config, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        return collect($config)->toJson(JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 }

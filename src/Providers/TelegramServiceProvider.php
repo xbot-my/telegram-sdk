@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace XBot\Telegram\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
+use XBot\Telegram\Http\Client\GuzzleHttpClient;
+use XBot\Telegram\Http\Client\Config as HttpConfig;
+use XBot\Telegram\Contracts\Http\Client as HttpClientContract;
+use XBot\Telegram\Contracts\Http\Client\Config as HttpConfigContract;
 
 class TelegramServiceProvider extends ServiceProvider
 {
@@ -15,8 +19,8 @@ class TelegramServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../../config/telegram.php', 'telegram');
 
         // Bind contracts to implementations
-        $this->app->bind(\XBot\Telegram\Contracts\Http\Client::class, \XBot\Telegram\Http\Client\GuzzleHttpClient::class);
-        $this->app->bind(\XBot\Telegram\Contracts\Http\Client\Config::class, \XBot\Telegram\Http\Client\Config::class);
+        $this->app->bind(HttpClientContract::class, GuzzleHttpClient::class);
+        $this->app->bind(HttpConfigContract::class, HttpConfig::class);
 
         // Update dispatcher singleton
         $this->app->singleton(\XBot\Telegram\Utils\UpdateDispatcher::class, function ($app) {
@@ -26,17 +30,19 @@ class TelegramServiceProvider extends ServiceProvider
             if (is_array($configured)) {
                 $handlers = array_values($configured);
             }
+
             return new \XBot\Telegram\Utils\UpdateDispatcher($handlers, $app);
         });
 
         // Default Bot singleton (injectable into handlers)
         $this->app->singleton(\XBot\Telegram\Bot::class, function ($app) {
-            $token = (string) (config('telegram.token') ?? '');
-            $httpConfig = (array) (config('telegram.http') ?? []);
+            $token = (string)(config('telegram.token') ?? '');
+            $httpConfig = (array)(config('telegram.http') ?? []);
             $httpConfig['token'] = $token;
-            $clientConfig = \XBot\Telegram\Http\Client\Config::fromArray($httpConfig, config('telegram.name'));
-            $client = new \XBot\Telegram\Http\Client\GuzzleHttpClient($clientConfig);
-            return new \XBot\Telegram\Bot($client, ['name' => (string) (config('telegram.name') ?? 'default')]);
+            $clientConfig = Config::fromArray($httpConfig, config('telegram.name'));
+            $client = new GuzzleHttpClient($clientConfig);
+
+            return new \XBot\Telegram\Bot($client, ['name' => (string)(config('telegram.name') ?? 'default')]);
         });
     }
 
@@ -59,8 +65,8 @@ class TelegramServiceProvider extends ServiceProvider
             $prefix = config('telegram.webhook.route_prefix');
             if ($prefix) {
                 Route::post($prefix, \XBot\Telegram\Http\Controllers\WebhookController::class)
-                    ->name('telegram.webhook')
-                    ->middleware(config('telegram.webhook.middleware', []));
+                     ->name('telegram.webhook')
+                     ->middleware(config('telegram.webhook.middleware', []));
             }
         }
     }
