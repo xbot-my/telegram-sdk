@@ -18,7 +18,7 @@ abstract class BaseEndpoint
         $this->botName = $botName;
     }
 
-    abstract public function __invoke(...$args);
+    // Each endpoint defines its own __invoke signature
 
     protected function call(string $method, array $parameters = []): TelegramResponse
     {
